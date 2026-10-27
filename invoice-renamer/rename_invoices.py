@@ -8,7 +8,7 @@
 동작:
   1. inbox 폴더의 PDF에서 승인번호·작성일자·거래처·공급가액을 읽는다.
   2. 홈택스 목록 엑셀이 있으면 승인번호로 대조해 그 값을 우선 쓴다.
-  3. {date}_{partner}_{amount}_{kind}.pdf 로 이름을 바꿔 outbox/YYYY-MM/매입|매출/ 로 옮긴다.
+  3. {date}_{company}_{partner}_{amount}_{kind}.pdf 로 이름을 바꿔 outbox/YYYY-MM/매입|매출/ 로 옮긴다.
   4. 못 읽은 파일은 outbox/확인필요/ 로 옮기고, 읽은 글자를 .txt로 같이 둔다.
   5. 처리 결과를 outbox/처리결과_YYYYMMDD_HHMM.xlsx 에 남긴다.
 """
@@ -141,6 +141,7 @@ def build_name(cfg, rec):
     amount = f"{rec['amount']:,}" if rec.get("amount") is not None else "금액미상"
     return cfg["name_pattern"].format(
         date=rec.get("date") or "날짜미상",
+        company=cfg.get("company_label", ""),
         partner=rec.get("partner") or "거래처미상",
         amount=amount,
         kind=rec.get("kind") or "구분미상",

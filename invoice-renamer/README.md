@@ -1,11 +1,12 @@
 # 세금계산서 파일명 변환기
 
-홈택스 등에서 내려받은 전자세금계산서 PDF를 `20261015_거래처_1,100,000_매입.pdf` 형식으로 바꾸고 월별 폴더에 넣는다.
+홈택스 등에서 내려받은 전자세금계산서 PDF를 `20261015_GXC_거래처_1,100,000_매입.pdf` 형식으로 바꾸고 월별 폴더에 넣는다.
 
 ## 처음 한 번 설치 (Windows)
 1. Python 설치: https://www.python.org/downloads/ → 설치 화면에서 **"Add python.exe to PATH"** 체크
 2. 이 폴더에서 명령 프롬프트를 열고: `pip install -r requirements.txt`
 3. `config.json` 수정
+   - `company_label`: 파일명에 들어갈 회사 표시 (기본 `GXC`)
    - `our_business_no`: 우리 회사 사업자등록번호 (`000-00-00000`) → 매입/매출 구분에 쓴다
    - `inbox`: PDF를 넣는 폴더 / `outbox`: 결과가 들어갈 폴더 (예: `C:/세금계산서/inbox`)
    - `hometax_list`: 홈택스에서 내려받은 세금계산서 목록 엑셀 경로 (없으면 `""`)
@@ -24,7 +25,7 @@
 3. 사업자번호가 우리 회사면 매출, 상대가 우리 회사면 매입.
 
 ## 파일명 규칙 바꾸기
-`config.json`의 `name_pattern`에서 `{date}` `{partner}` `{amount}` `{kind}` 순서를 바꾸면 된다. `month_folder`를 `false`로 하면 월별 폴더를 만들지 않는다.
+`config.json`의 `name_pattern`에서 `{date}` `{company}` `{partner}` `{amount}` `{kind}` 순서를 바꾸면 된다. `month_folder`를 `false`로 하면 월별 폴더를 만들지 않는다.
 
 ## 테스트
 `python make_samples.py` 로 가짜 PDF 6건과 목록 엑셀을 만든 뒤 `python rename_invoices.py` 를 실행해 본다. 실제 회사 정보는 들어 있지 않다.

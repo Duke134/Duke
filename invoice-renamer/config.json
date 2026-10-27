@@ -1,8 +1,9 @@
 {
   "our_business_no": "123-45-67890",
+  "company_label": "GXC",
   "inbox": "samples/inbox",
   "outbox": "samples/outbox",
   "hometax_list": "samples/홈택스목록.xlsx",
-  "name_pattern": "{date}_{partner}_{amount}_{kind}",
+  "name_pattern": "{date}_{company}_{partner}_{amount}_{kind}",
   "month_folder": true
 }
