@@ -1,293 +1,230 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="light">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>양남규 | 경영지원 매니저</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <title>양남규 경영지원 프로필</title>
   <meta name="description" content="IT 스타트업에서 재무·인사·IR·정부사업·해외업무·총무를 혼자 맡아 운영하며, 그 일을 AI와 지식관리 도구로 시스템화하는 경영지원 매니저 양남규의 프로필입니다.">
-  <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="#" class="nav-logo">Duke Yang</a>
-      <div class="nav-links">
-        <a href="#about">소개</a>
-        <a href="#areas">담당 영역</a>
-        <a href="#cases">주요 사례</a>
-        <a href="#skills">스킬·도구</a>
-        <a href="#timeline">타임라인</a>
-        <a href="#contact">연락</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="다크 모드 전환">
-          <span class="theme-icon">&#9790;</span>
-        </button>
-      </div>
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="메뉴" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
+<div class="page">
 
-  <!-- Hero -->
-  <header class="hero" id="hero">
-    <div class="container hero-inner">
-      <p class="hero-eyebrow fade-in">경영지원 매니저 · Business Operations</p>
-      <h1 class="hero-name fade-in">양남규 <span class="hero-name-en">Duke Yang</span></h1>
-      <p class="hero-lead fade-in">
+  <!-- 왼쪽 고정 목차 -->
+  <aside class="rail">
+    <div class="rail-inner">
+      <p class="rail-kicker">경영지원 매니저</p>
+      <h1 class="rail-name">양남규</h1>
+      <p class="rail-sub">Duke Yang</p>
+
+      <nav class="toc" aria-label="목차">
+        <a href="#about"><span class="toc-no">00</span>소개</a>
+        <a href="#areas"><span class="toc-no">01</span>담당 영역</a>
+        <a href="#cases"><span class="toc-no">02</span>주요 사례</a>
+        <a href="#skills"><span class="toc-no">03</span>스킬·도구</a>
+        <a href="#timeline"><span class="toc-no">04</span>타임라인</a>
+        <a href="#contact"><span class="toc-no">05</span>연락</a>
+      </nav>
+
+      <div class="rail-foot">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="테마 전환">
+          <span class="theme-label" id="themeLabel">다크 모드</span>
+        </button>
+        <p class="rail-updated">기준일 2026-10-27</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 본문 -->
+  <main class="main">
+
+    <header class="intro" id="top">
+      <p class="intro-lead">
         IT 스타트업에서 재무·인사·IR·정부사업·해외업무·총무를 혼자 맡아 운영하며,
         그 일을 AI와 지식관리 도구로 시스템화하는 경영지원 매니저입니다.
       </p>
-      <div class="hero-cta fade-in">
-        <a href="#cases" class="btn btn-primary">주요 사례 보기</a>
-        <a href="#contact" class="btn btn-outline">연락하기</a>
+      <dl class="intro-principles">
+        <dt>일하는 원칙</dt>
+        <dd>사람의 기억이 아닌 시스템에 남긴다.</dd>
+        <dd>받은 자료를 그대로 쓰지 않고, 법령 원문과 원자료로 확인한 뒤 내보낸다.</dd>
+        <dd>반복 업무는 스킬로, 재발하는 업무는 SOP로 만든다.</dd>
+      </dl>
+    </header>
+
+    <section class="sec" id="about">
+      <h2 class="sec-title"><span class="sec-no">00</span>소개</h2>
+      <div class="prose">
+        <p>IT 스타트업 경영지원팀 매니저로 일하며 국내 법인과 해외 자회사의 재무·인사·법무·정부사업·IR 실무를 단독으로 운영하고 있습니다.</p>
+        <p>국제통상학을 전공했고, 미국 현지 유통기업에서 근무한 경험을 바탕으로 해외 조직과 함께 일하는 데 익숙합니다.</p>
+        <p>여러 영역이 맞물리는 경영지원 업무를 사람의 기억이 아닌 시스템에 남기기 위해 옵시디언 기반 업무 운영체계와 AI 자동화 워크플로를 직접 설계해 쓰고 있습니다.</p>
+        <p>받은 자료를 그대로 쓰지 않고, 법령 원문과 원자료로 확인한 뒤 내보내는 것을 일하는 원칙으로 삼고 있습니다.</p>
       </div>
-      <ul class="hero-principles fade-in" aria-label="일하는 원칙">
-        <li>사람의 기억이 아닌 시스템에 남긴다</li>
-        <li>법령 원문과 원자료로 확인한 뒤 내보낸다</li>
-        <li>반복 업무는 스킬로, 재발 업무는 SOP로</li>
-      </ul>
-    </div>
-  </header>
+    </section>
 
-  <!-- About -->
-  <section class="section" id="about">
-    <div class="container">
-      <h2 class="section-title fade-in">About</h2>
-      <div class="about-grid fade-in">
-        <div class="about-text">
-          <p>IT 스타트업 경영지원팀 매니저로 일하며 국내 법인과 해외 자회사의 재무·인사·법무·정부사업·IR 실무를 단독으로 운영하고 있습니다.</p>
-          <p>국제통상학을 전공했고, 미국 현지 유통기업에서 근무한 경험을 바탕으로 해외 조직과 함께 일하는 데 익숙합니다.</p>
-          <p>여러 영역이 맞물리는 경영지원 업무를 사람의 기억이 아닌 시스템에 남기기 위해 옵시디언 기반 업무 운영체계와 AI 자동화 워크플로를 직접 설계해 쓰고 있습니다.</p>
-          <p>받은 자료를 그대로 쓰지 않고, 법령 원문과 원자료로 확인한 뒤 내보내는 것을 일하는 원칙으로 삼고 있습니다.</p>
+    <section class="sec" id="areas">
+      <h2 class="sec-title"><span class="sec-no">01</span>담당 영역</h2>
+      <p class="sec-note">여섯 영역을 한 사람이 맡아 운영합니다.</p>
+      <dl class="ledger">
+        <div class="ledger-row">
+          <dt>재무·회계</dt>
+          <dd>
+            <p>자금 운용과 송금·결제를 관리하고, 부가세·법인세·원천세·지방세 등 세무 전 주기를 대응합니다.</p>
+            <p>결산과 외부감사 대응, 별도·연결 재무제표 관리를 맡고 외부 회계법인과의 커뮤니케이션을 담당합니다.</p>
+          </dd>
         </div>
-        <aside class="about-facts">
-          <dl>
-            <div><dt>역할</dt><dd>경영지원팀 매니저 (1인 운영)</dd></div>
-            <div><dt>범위</dt><dd>국내 법인 + 해외 자회사</dd></div>
-            <div><dt>전공</dt><dd>국제통상학 (중어중문학 복수전공)</dd></div>
-            <div><dt>해외 경력</dt><dd>미국 소재 유통기업 구매 담당</dd></div>
-            <div><dt>운영 도구</dt><dd>옵시디언 · 엑셀 · Claude 스킬</dd></div>
-          </dl>
-        </aside>
+        <div class="ledger-row">
+          <dt>인사·노무</dt>
+          <dd>
+            <p>급여·4대보험·연말정산·퇴직금 산정 등 인사 운영 실무를 처리합니다.</p>
+            <p>채용 공고 기획부터 면접, 입사 조율까지 진행하고, 해외 원격 인력의 계약·온보딩·오프보딩 절차를 표준화했습니다.</p>
+          </dd>
+        </div>
+        <div class="ledger-row">
+          <dt>IR·투자</dt>
+          <dd>
+            <p>정기주주총회·이사회 운영, 정관 개정, 등기, 주주명부와 스톡옵션 관리를 맡고 있습니다.</p>
+            <p>투자 계약 절차를 상법 조문 기준 일정표로 설계하고, 투자자 대상 분기 실적보고서(국문·영문)를 작성합니다.</p>
+          </dd>
+        </div>
+        <div class="ledger-row">
+          <dt>정부사업</dt>
+          <dd>
+            <p>공고 분석 → 사업계획서 작성 → 신청 → 협약 → 정산까지 전 주기를 실무로 수행합니다.</p>
+            <p>입찰·협약 서류를 반복해서 쓸 수 있는 패키지로 정리해 운영하고 있습니다.</p>
+          </dd>
+        </div>
+        <div class="ledger-row">
+          <dt>해외업무</dt>
+          <dd>
+            <p>해외 자회사의 인보이스와 용역계약 증빙을 관리하고, 해외 사업 행사 참가와 해외 출장 서류 실무를 지원합니다.</p>
+          </dd>
+        </div>
+        <div class="ledger-row">
+          <dt>총무</dt>
+          <dd>
+            <p>본점 이전 같은 법인 행정 절차와 기업 인증 관리, 사무실·자산 관리를 담당합니다.</p>
+            <p>대외행사 대관·운영을 맡고, 그 과정을 SOP로 남겼습니다.</p>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="sec" id="cases">
+      <h2 class="sec-title"><span class="sec-no">02</span>주요 사례</h2>
+      <p class="sec-note">배경, 한 일, 결과 순으로 적었습니다.</p>
+
+      <article class="case">
+        <h3 class="case-title"><span class="case-no">사례 1</span>1인 경영지원을 "인계 가능한 시스템"으로 바꾸기</h3>
+        <dl class="case-body">
+          <dt>배경</dt>
+          <dd>경영지원 인력이 한 명이라 업무가 개인 머릿속에만 있으면, 그 사람이 빠질 때 회사 업무가 멈추는 구조였습니다.</dd>
+          <dt>한 일</dt>
+          <dd>업무 도구를 노션에서 옵시디언으로 완전히 옮겨 번호형 폴더 구조로 재구성했습니다. 반복 업무는 커스텀 AI 스킬로, 재발하는 업무는 SOP로 만들었고, 회사 기본 사실은 단일 원본 문서 하나로 모았습니다.</dd>
+          <dt class="result">결과</dt>
+          <dd class="result">옵시디언이 경영지원의 단일 운영체제가 되어, 신규 담당자도 볼트만 보고 업무 흐름을 파악할 수 있게 됐습니다.</dd>
+        </dl>
+      </article>
+
+      <article class="case">
+        <h3 class="case-title"><span class="case-no">사례 2</span>단일 통화 자금 시트를 의사결정 도구로 재설계</h3>
+        <dl class="case-body">
+          <dt>배경</dt>
+          <dd>국내 법인과 해외 자회사의 자금을 단일 통화 시트로 수동 관리하고 있어, 경영진의 자금 판단 질문에 바로 답하기 어려웠습니다.</dd>
+          <dt>한 일</dt>
+          <dd>대시보드·통화별 입출금·정기 비용·미지급 항목으로 시트를 나누고, 다중 통화 환산과 "부족액 식별 → 송금액 계산 → 송금 후 잔액" 시뮬레이션을 자동화했습니다. 매월 정기 보고 SOP도 함께 만들었습니다.</dd>
+          <dt class="result">결과</dt>
+          <dd class="result">경영진의 자금 의사결정 질문에 한 화면에서 바로 답할 수 있는 상태가 됐습니다.</dd>
+        </dl>
+      </article>
+
+      <article class="case">
+        <h3 class="case-title"><span class="case-no">사례 3</span>법률 1차 검토를 법령 원문 기반으로 내재화</h3>
+        <dl class="case-body">
+          <dt>배경</dt>
+          <dd>노무·세무·상법 판단이 실무 상식이나 기억에 기대는 경우가 많아, 근거가 약한 보고가 나갈 위험이 있었습니다.</dd>
+          <dt>한 일</dt>
+          <dd>국가법령정보 공개 API와 오픈소스 법령 조회 도구를 업무용 AI에 연동했습니다. 판단마다 조문·시행령·판례를 확인하고 확인 여부 라벨을 붙이는 규칙을 고정했습니다.</dd>
+          <dt class="result">결과</dt>
+          <dd class="result">법이 걸린 판단이 조문과 시행일 근거를 갖춘 보고 형식으로 바뀌었고, 실무 상식만으로는 놓칠 수 있는 별도 조항을 미리 잡게 됐습니다.</dd>
+        </dl>
+      </article>
+
+      <article class="case">
+        <h3 class="case-title"><span class="case-no">사례 4</span>외부로 나가기 전 "받은 산출물"을 역검증하는 습관</h3>
+        <dl class="case-body">
+          <dt>배경</dt>
+          <dd>회계법인·기관·플랫폼에서 받은 자료나 내부 문서가 확인 없이 외부로 나가면 세금·등기·평가에 바로 영향을 줍니다.</dd>
+          <dt>한 일</dt>
+          <dd>회계법인 산출물, 기관·플랫폼 자료, 계약서와 내부 문서를 원장·법령 원문과 대조한 뒤 제출하는 절차를 분기 내내 운영했습니다.</dd>
+          <dt class="result">결과</dt>
+          <dd class="result">기간 오류, 견적 오기, 정관과 계약의 충돌 같은 문제를 외부 제출 전에 찾아냈습니다.</dd>
+        </dl>
+      </article>
+
+      <article class="case">
+        <h3 class="case-title"><span class="case-no">사례 5</span>예산 대비 실적 관리 워크북 구축</h3>
+        <dl class="case-body">
+          <dt>배경</dt>
+          <dd>월별 지출 추적이 여러 엑셀 파일에 흩어져 있어 예산을 통제하기 어려웠습니다.</dd>
+          <dt>한 일</dt>
+          <dd>실제 계정원장을 기준으로 계정과목을 정리해 카테고리로 묶었습니다. 월별 예산 수립 → 실적 입력 → 차이 분석 흐름을 자동화했고, 이후 중앙 가정 시트와 연동되도록 확장했습니다.</dd>
+          <dt class="result">결과</dt>
+          <dd class="result">예산 대비 실적을 한 체계에서 관리하는 관리회계 기반을 만들었습니다.</dd>
+        </dl>
+      </article>
+    </section>
+
+    <section class="sec" id="skills">
+      <h2 class="sec-title"><span class="sec-no">03</span>스킬·도구</h2>
+      <dl class="ledger ledger-tight">
+        <div class="ledger-row"><dt>엑셀</dt><dd>함수 조합(VLOOKUP·IF), 피벗, 관리회계 워크북·자금 시뮬레이션 설계</dd></div>
+        <div class="ledger-row"><dt>옵시디언</dt><dd>번호형 볼트 구조, Templater·Tasks 플러그인</dd></div>
+        <div class="ledger-row"><dt>AI 업무 자동화</dt><dd>Claude 커스텀 스킬 설계·운영, 예약 작업 자동화, MCP 연동(법령 원문 조회, 옵시디언 연동)</dd></div>
+        <div class="ledger-row"><dt>협업 도구</dt><dd>Gmail, Google Drive, Slack</dd></div>
+        <div class="ledger-row"><dt>ERP</dt><dd>클라우드 ERP 1차 셋업(홈택스·은행·법인카드 연동)</dd></div>
+        <div class="ledger-row"><dt>문서 표준화</dt><dd>공문 서식, docx·pptx 폰트 표준, 인보이스·인사·급여 템플릿, SOP</dd></div>
+        <div class="ledger-row"><dt>실무 지식</dt><dd>결산·세무 신고 대응, 주총·이사회·등기, 정부사업 전 주기</dd></div>
+        <div class="ledger-row"><dt>언어</dt><dd>비즈니스 영어(미국 현지 근무 경험)</dd></div>
+      </dl>
+    </section>
+
+    <section class="sec" id="timeline">
+      <h2 class="sec-title"><span class="sec-no">04</span>타임라인</h2>
+      <div class="table-wrap">
+        <table class="timeline">
+          <thead>
+            <tr><th scope="col">연도</th><th scope="col">내용</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2022 – 현재</td><td>IT 스타트업 — 경영지원팀 매니저</td></tr>
+            <tr><td>2019 – 2022</td><td>미국 소재 유통기업 — 재고관리 인턴 → 구매(Purchasing) 담당</td></tr>
+            <tr><td>2018 – 2019</td><td>미국 비즈니스 취업연수 과정 수료</td></tr>
+            <tr><td>2017</td><td>중국 교환학생</td></tr>
+            <tr><td>2013 – 2019</td><td>학부 — 국제통상학 전공 (중어중문학 복수전공)</td></tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Areas -->
-  <section class="section section-alt" id="areas">
-    <div class="container">
-      <h2 class="section-title fade-in">담당 영역</h2>
-      <p class="section-subtitle fade-in">여섯 영역을 한 사람이 맡아 운영합니다.</p>
-      <div class="area-grid">
-        <article class="area-card fade-in">
-          <span class="area-index">01</span>
-          <h3>재무·회계</h3>
-          <p>자금 운용과 송금·결제를 관리하고, 부가세·법인세·원천세·지방세 등 세무 전 주기를 대응합니다.</p>
-          <p>결산과 외부감사 대응, 별도·연결 재무제표 관리를 맡고 외부 회계법인과의 커뮤니케이션을 담당합니다.</p>
-        </article>
-        <article class="area-card fade-in">
-          <span class="area-index">02</span>
-          <h3>인사·노무</h3>
-          <p>급여·4대보험·연말정산·퇴직금 산정 등 인사 운영 실무를 처리합니다.</p>
-          <p>채용 공고 기획부터 면접, 입사 조율까지 진행하고, 해외 원격 인력의 계약·온보딩·오프보딩 절차를 표준화했습니다.</p>
-        </article>
-        <article class="area-card fade-in">
-          <span class="area-index">03</span>
-          <h3>IR·투자</h3>
-          <p>정기주주총회·이사회 운영, 정관 개정, 등기, 주주명부와 스톡옵션 관리를 맡고 있습니다.</p>
-          <p>투자 계약 절차를 상법 조문 기준 일정표로 설계하고, 투자자 대상 분기 실적보고서(국문·영문)를 작성합니다.</p>
-        </article>
-        <article class="area-card fade-in">
-          <span class="area-index">04</span>
-          <h3>정부사업</h3>
-          <p>공고 분석 → 사업계획서 작성 → 신청 → 협약 → 정산까지 전 주기를 실무로 수행합니다.</p>
-          <p>입찰·협약 서류를 반복해서 쓸 수 있는 패키지로 정리해 운영하고 있습니다.</p>
-        </article>
-        <article class="area-card fade-in">
-          <span class="area-index">05</span>
-          <h3>해외업무</h3>
-          <p>해외 자회사의 인보이스와 용역계약 증빙을 관리하고, 해외 사업 행사 참가와 해외 출장 서류 실무를 지원합니다.</p>
-        </article>
-        <article class="area-card fade-in">
-          <span class="area-index">06</span>
-          <h3>총무</h3>
-          <p>본점 이전 같은 법인 행정 절차와 기업 인증 관리, 사무실·자산 관리를 담당합니다.</p>
-          <p>대외행사 대관·운영을 맡고, 그 과정을 SOP로 남겼습니다.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Cases -->
-  <section class="section" id="cases">
-    <div class="container">
-      <h2 class="section-title fade-in">주요 사례</h2>
-      <p class="section-subtitle fade-in">배경 → 한 일 → 결과 순으로 정리했습니다.</p>
-      <div class="case-list">
-
-        <article class="case-card fade-in">
-          <div class="case-head">
-            <span class="case-number">①</span>
-            <h3>1인 경영지원을 "인계 가능한 시스템"으로 바꾸기</h3>
-          </div>
-          <div class="case-body">
-            <div class="case-step"><h4>배경</h4><p>경영지원 인력이 한 명이라 업무가 개인 머릿속에만 있으면, 그 사람이 빠질 때 회사 업무가 멈추는 구조였습니다.</p></div>
-            <div class="case-step"><h4>한 일</h4><p>업무 도구를 노션에서 옵시디언으로 완전히 옮겨 번호형 폴더 구조로 재구성했습니다. 반복 업무는 커스텀 AI 스킬로, 재발하는 업무는 SOP로 만들었고, 회사 기본 사실은 단일 원본 문서 하나로 모았습니다.</p></div>
-            <div class="case-step case-result"><h4>결과</h4><p>옵시디언이 경영지원의 단일 운영체제가 되어, 신규 담당자도 볼트만 보고 업무 흐름을 파악할 수 있게 됐습니다.</p></div>
-          </div>
-        </article>
-
-        <article class="case-card fade-in">
-          <div class="case-head">
-            <span class="case-number">②</span>
-            <h3>단일 통화 자금 시트를 의사결정 도구로 재설계</h3>
-          </div>
-          <div class="case-body">
-            <div class="case-step"><h4>배경</h4><p>국내 법인과 해외 자회사의 자금을 단일 통화 시트로 수동 관리하고 있어, 경영진의 자금 판단 질문에 바로 답하기 어려웠습니다.</p></div>
-            <div class="case-step"><h4>한 일</h4><p>대시보드·통화별 입출금·정기 비용·미지급 항목으로 시트를 나누고, 다중 통화 환산과 "부족액 식별 → 송금액 계산 → 송금 후 잔액" 시뮬레이션을 자동화했습니다. 매월 정기 보고 SOP도 함께 만들었습니다.</p></div>
-            <div class="case-step case-result"><h4>결과</h4><p>경영진의 자금 의사결정 질문에 한 화면에서 바로 답할 수 있는 상태가 됐습니다.</p></div>
-          </div>
-        </article>
-
-        <article class="case-card fade-in">
-          <div class="case-head">
-            <span class="case-number">③</span>
-            <h3>법률 1차 검토를 법령 원문 기반으로 내재화</h3>
-          </div>
-          <div class="case-body">
-            <div class="case-step"><h4>배경</h4><p>노무·세무·상법 판단이 실무 상식이나 기억에 기대는 경우가 많아, 근거가 약한 보고가 나갈 위험이 있었습니다.</p></div>
-            <div class="case-step"><h4>한 일</h4><p>국가법령정보 공개 API와 오픈소스 법령 조회 도구를 업무용 AI에 연동했습니다. 판단마다 조문·시행령·판례를 확인하고 확인 여부 라벨을 붙이는 규칙을 고정했습니다.</p></div>
-            <div class="case-step case-result"><h4>결과</h4><p>법이 걸린 판단이 조문과 시행일 근거를 갖춘 보고 형식으로 바뀌었고, 실무 상식만으로는 놓칠 수 있는 별도 조항을 미리 잡게 됐습니다.</p></div>
-          </div>
-        </article>
-
-        <article class="case-card fade-in">
-          <div class="case-head">
-            <span class="case-number">④</span>
-            <h3>외부로 나가기 전 "받은 산출물"을 역검증하는 습관</h3>
-          </div>
-          <div class="case-body">
-            <div class="case-step"><h4>배경</h4><p>회계법인·기관·플랫폼에서 받은 자료나 내부 문서가 확인 없이 외부로 나가면 세금·등기·평가에 바로 영향을 줍니다.</p></div>
-            <div class="case-step"><h4>한 일</h4><p>회계법인 산출물, 기관·플랫폼 자료, 계약서와 내부 문서를 원장·법령 원문과 대조한 뒤 제출하는 절차를 분기 내내 운영했습니다.</p></div>
-            <div class="case-step case-result"><h4>결과</h4><p>기간 오류, 견적 오기, 정관과 계약의 충돌 같은 문제를 외부 제출 전에 찾아냈습니다.</p></div>
-          </div>
-        </article>
-
-        <article class="case-card fade-in">
-          <div class="case-head">
-            <span class="case-number">⑤</span>
-            <h3>예산 대비 실적 관리 워크북 구축</h3>
-          </div>
-          <div class="case-body">
-            <div class="case-step"><h4>배경</h4><p>월별 지출 추적이 여러 엑셀 파일에 흩어져 있어 예산을 통제하기 어려웠습니다.</p></div>
-            <div class="case-step"><h4>한 일</h4><p>실제 계정원장을 기준으로 계정과목을 정리해 카테고리로 묶었습니다. 월별 예산 수립 → 실적 입력 → 차이 분석 흐름을 자동화했고, 이후 중앙 가정 시트와 연동되도록 확장했습니다.</p></div>
-            <div class="case-step case-result"><h4>결과</h4><p>예산 대비 실적을 한 체계에서 관리하는 관리회계 기반을 만들었습니다.</p></div>
-          </div>
-        </article>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Skills -->
-  <section class="section section-alt" id="skills">
-    <div class="container">
-      <h2 class="section-title fade-in">스킬·도구</h2>
-      <div class="skill-grid">
-        <div class="skill-card fade-in">
-          <h3>엑셀</h3>
-          <p>함수 조합(VLOOKUP·IF), 피벗, 관리회계 워크북·자금 시뮬레이션 설계</p>
+    <section class="sec" id="contact">
+      <h2 class="sec-title"><span class="sec-no">05</span>연락</h2>
+      <dl class="ledger ledger-tight">
+        <div class="ledger-row">
+          <dt>이메일</dt>
+          <dd class="contact-line">
+            <span class="mono" id="emailText">namgyu1412@naver.com</span>
+            <button type="button" class="copy-btn" id="copyEmail">복사</button>
+          </dd>
         </div>
-        <div class="skill-card fade-in">
-          <h3>옵시디언</h3>
-          <p>번호형 볼트 구조, Templater·Tasks 플러그인</p>
-        </div>
-        <div class="skill-card fade-in">
-          <h3>AI 업무 자동화</h3>
-          <p>Claude 커스텀 스킬 설계·운영, 예약 작업 자동화, MCP 연동(법령 원문 조회, 옵시디언 연동)</p>
-        </div>
-        <div class="skill-card fade-in">
-          <h3>협업 도구</h3>
-          <p>Gmail, Google Drive, Slack</p>
-        </div>
-        <div class="skill-card fade-in">
-          <h3>ERP</h3>
-          <p>클라우드 ERP 1차 셋업(홈택스·은행·법인카드 연동)</p>
-        </div>
-        <div class="skill-card fade-in">
-          <h3>문서 표준화</h3>
-          <p>공문 서식, docx·pptx 폰트 표준, 인보이스·인사·급여 템플릿, SOP</p>
-        </div>
-        <div class="skill-card fade-in">
-          <h3>실무 지식</h3>
-          <p>결산·세무 신고 대응, 주총·이사회·등기, 정부사업 전 주기</p>
-        </div>
-        <div class="skill-card fade-in">
-          <h3>언어</h3>
-          <p>비즈니스 영어(미국 현지 근무 경험)</p>
-        </div>
-      </div>
-    </div>
-  </section>
+      </dl>
+      <p class="colophon">© 2026 Duke Yang</p>
+    </section>
 
-  <!-- Timeline -->
-  <section class="section" id="timeline">
-    <div class="container">
-      <h2 class="section-title fade-in">타임라인</h2>
-      <ol class="timeline">
-        <li class="timeline-item fade-in">
-          <span class="timeline-date">2022 – 현재</span>
-          <div class="timeline-content">
-            <h3>IT 스타트업 — 경영지원팀 매니저</h3>
-            <p>재무·인사·IR·정부사업·해외업무·총무를 단독 운영</p>
-          </div>
-        </li>
-        <li class="timeline-item fade-in">
-          <span class="timeline-date">2019 – 2022</span>
-          <div class="timeline-content">
-            <h3>미국 소재 유통기업 — 재고관리 인턴 → 구매(Purchasing) 담당</h3>
-          </div>
-        </li>
-        <li class="timeline-item fade-in">
-          <span class="timeline-date">2018 – 2019</span>
-          <div class="timeline-content">
-            <h3>미국 비즈니스 취업연수 과정 수료</h3>
-          </div>
-        </li>
-        <li class="timeline-item fade-in">
-          <span class="timeline-date">2017</span>
-          <div class="timeline-content">
-            <h3>중국 교환학생</h3>
-          </div>
-        </li>
-        <li class="timeline-item fade-in">
-          <span class="timeline-date">2013 – 2019</span>
-          <div class="timeline-content">
-            <h3>학부 — 국제통상학 전공 (중어중문학 복수전공)</h3>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <footer class="footer" id="contact">
-    <div class="container">
-      <div class="footer-content fade-in">
-        <h2>연락 방식</h2>
-        <p>이메일로 연락 주시면 확인 후 답장드리겠습니다.</p>
-        <a href="mailto:namgyu1412@naver.com" class="footer-link">
-          <span class="link-icon">&#9993;</span>
-          <span>namgyu1412@naver.com</span>
-        </a>
-      </div>
-      <p class="footer-copy">&copy; 2026 Duke Yang</p>
-    </div>
-  </footer>
-
-  <script src="script.js"></script>
+  </main>
+</div>
+<script src="script.js"></script>
 </body>
 </html>

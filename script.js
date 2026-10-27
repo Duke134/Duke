@@ -1,77 +1,69 @@
-// ===== Theme Toggle =====
+// 테마 전환: 명시 선택은 data-theme으로, 미선택 시 시스템 설정을 따른다
+const root = document.documentElement;
 const themeToggle = document.getElementById('themeToggle');
-const themeIcon = themeToggle.querySelector('.theme-icon');
-const html = document.documentElement;
+const themeLabel = document.getElementById('themeLabel');
+const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
 
-function setTheme(theme, persist) {
-  html.setAttribute('data-theme', theme);
-  themeIcon.textContent = theme === 'dark' ? '☀' : '☾';
-  if (persist) {
-    try { localStorage.setItem('theme', theme); } catch (e) { /* storage unavailable */ }
-  }
+function currentTheme() {
+  const explicit = root.getAttribute('data-theme');
+  if (explicit === 'dark' || explicit === 'light') return explicit;
+  return systemDark.matches ? 'dark' : 'light';
 }
-
-let savedTheme = null;
-try { savedTheme = localStorage.getItem('theme'); } catch (e) { /* storage unavailable */ }
-if (savedTheme === 'dark' || savedTheme === 'light') {
-  setTheme(savedTheme, false);
-} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  setTheme('dark', false);
+function renderThemeLabel() {
+  themeLabel.textContent = currentTheme() === 'dark' ? '라이트 모드' : '다크 모드';
 }
+try {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+} catch (e) { /* 저장소 사용 불가 */ }
+renderThemeLabel();
+systemDark.addEventListener('change', renderThemeLabel);
 
 themeToggle.addEventListener('click', () => {
-  const current = html.getAttribute('data-theme');
-  setTheme(current === 'dark' ? 'light' : 'dark', true);
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) { /* 저장소 사용 불가 */ }
+  renderThemeLabel();
 });
 
-// ===== Mobile Menu =====
-const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-const navLinks = document.querySelector('.nav-links');
+// 현재 보고 있는 섹션을 목차에 표시
+const tocLinks = Array.from(document.querySelectorAll('.toc a'));
+const sections = tocLinks
+  .map(a => document.querySelector(a.getAttribute('href')))
+  .filter(Boolean);
 
-function closeMenu() {
-  navLinks.classList.remove('open');
-  mobileMenuBtn.classList.remove('open');
-  mobileMenuBtn.setAttribute('aria-expanded', 'false');
+function setActive(id) {
+  tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
 }
-
-mobileMenuBtn.addEventListener('click', () => {
-  const isOpen = navLinks.classList.toggle('open');
-  mobileMenuBtn.classList.toggle('open', isOpen);
-  mobileMenuBtn.setAttribute('aria-expanded', String(isOpen));
-});
-
-navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', closeMenu);
-});
-
-// ===== Nav shadow on scroll =====
-const nav = document.querySelector('.nav');
-function updateNav() {
-  nav.classList.toggle('scrolled', window.scrollY > 10);
-}
-window.addEventListener('scroll', updateNav, { passive: true });
-updateNav();
-
-// ===== Fade-in on scroll =====
-const fadeElements = document.querySelectorAll('.fade-in');
-
-if ('IntersectionObserver' in window) {
+if ('IntersectionObserver' in window && sections.length) {
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  fadeElements.forEach(el => observer.observe(el));
-} else {
-  fadeElements.forEach(el => el.classList.add('visible'));
+    const visible = entries.filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (visible.length) setActive(visible[0].target.id);
+  }, { rootMargin: '-20% 0px -65% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+  setActive(sections[0].id);
 }
 
-// Stagger cards within each grid
-['.area-grid', '.skill-grid', '.case-list', '.timeline'].forEach(selector => {
-  document.querySelectorAll(selector + ' .fade-in').forEach((el, i) => {
-    el.style.transitionDelay = (i * 0.07) + 's';
-  });
+// 이메일 복사
+const copyBtn = document.getElementById('copyEmail');
+const emailText = document.getElementById('emailText');
+copyBtn.addEventListener('click', () => {
+  const done = () => {
+    copyBtn.textContent = '복사됨';
+    copyBtn.classList.add('done');
+    setTimeout(() => { copyBtn.textContent = '복사'; copyBtn.classList.remove('done'); }, 1600);
+  };
+  const fallback = () => {
+    const range = document.createRange();
+    range.selectNodeContents(emailText);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(emailText.textContent).then(done).catch(fallback);
+  } else {
+    fallback();
+  }
 });
