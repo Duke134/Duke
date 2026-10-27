@@ -4,8 +4,9 @@
 
 ## 처음 한 번 설치 (Windows)
 1. Python 설치: https://www.python.org/downloads/ → 설치 화면에서 **"Add python.exe to PATH"** 체크
-2. 이 폴더에서 명령 프롬프트를 열고: `pip install -r requirements.txt`
-3. `config.json` 수정
+2. 이 폴더(`invoice-renamer`)를 PC에 받아 둔다 (GitHub → Code → Download ZIP → 압축 해제).
+3. `0_설치.bat` 더블클릭 (명령 프롬프트가 열리며 패키지가 설치된다. Python 화면 `>>>`에서 치는 게 아니다.)
+4. `config.json` 수정
    - `company_label`: 파일명에 들어갈 회사 표시 (기본 `GXC`)
    - `our_business_no`: 우리 회사 사업자등록번호 (`000-00-00000`) → 매입/매출 구분에 쓴다
    - `inbox`: PDF를 넣는 폴더 / `outbox`: 결과가 들어갈 폴더 (예: `C:/세금계산서/inbox`)
