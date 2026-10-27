@@ -3,709 +3,288 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>양남규 | Finance Operations</title>
+  <title>양남규 | 경영지원 매니저</title>
+  <meta name="description" content="IT 스타트업에서 재무·인사·IR·정부사업·해외업무·총무를 혼자 맡아 운영하며, 그 일을 AI와 지식관리 도구로 시스템화하는 경영지원 매니저 양남규의 프로필입니다.">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Navigation -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">NG.YANG</a>
+      <a href="#" class="nav-logo">Duke Yang</a>
       <div class="nav-links">
-        <a href="#about">About</a>
-        <a href="#skills">Skills</a>
-        <a href="#excel-demo">Excel</a>
-        <a href="#case-studies">Cases</a>
-        <a href="#timeline">Timeline</a>
-        <a href="#projects">Projects</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <a href="#about">소개</a>
+        <a href="#areas">담당 영역</a>
+        <a href="#cases">주요 사례</a>
+        <a href="#skills">스킬·도구</a>
+        <a href="#timeline">타임라인</a>
+        <a href="#contact">연락</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="다크 모드 전환">
           <span class="theme-icon">&#9790;</span>
         </button>
       </div>
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="메뉴" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero" id="hero">
-    <div class="hero-content">
-      <div class="hero-text">
-        <p class="hero-greeting fade-in">Hello, I'm</p>
-        <h1 class="hero-name fade-in">양남규</h1>
-        <h2 class="hero-title fade-in">Finance Operations Specialist</h2>
-        <p class="hero-desc fade-in">스타트업의 성장을 뒷받침하는 경영지원 전문가.<br>재무, IR, HR, 컴플라이언스를 아우르는 크로스펑셔널 역량으로<br>비즈니스의 안정적인 운영 기반을 만듭니다.</p>
-        <div class="hero-cta fade-in">
-          <a href="#contact" class="btn btn-primary">Contact Me</a>
-          <a href="#projects" class="btn btn-outline">View Projects</a>
-        </div>
+  <!-- Hero -->
+  <header class="hero" id="hero">
+    <div class="container hero-inner">
+      <p class="hero-eyebrow fade-in">경영지원 매니저 · Business Operations</p>
+      <h1 class="hero-name fade-in">양남규 <span class="hero-name-en">Duke Yang</span></h1>
+      <p class="hero-lead fade-in">
+        IT 스타트업에서 재무·인사·IR·정부사업·해외업무·총무를 혼자 맡아 운영하며,
+        그 일을 AI와 지식관리 도구로 시스템화하는 경영지원 매니저입니다.
+      </p>
+      <div class="hero-cta fade-in">
+        <a href="#cases" class="btn btn-primary">주요 사례 보기</a>
+        <a href="#contact" class="btn btn-outline">연락하기</a>
       </div>
-      <div class="hero-visual fade-in">
-        <div class="profile-placeholder">
-          <span>NG</span>
-        </div>
-      </div>
+      <ul class="hero-principles fade-in" aria-label="일하는 원칙">
+        <li>사람의 기억이 아닌 시스템에 남긴다</li>
+        <li>법령 원문과 원자료로 확인한 뒤 내보낸다</li>
+        <li>반복 업무는 스킬로, 재발 업무는 SOP로</li>
+      </ul>
     </div>
-    <div class="scroll-indicator">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
+  </header>
 
-  <!-- About Section -->
+  <!-- About -->
   <section class="section" id="about">
     <div class="container">
-      <h2 class="section-title fade-in">About Me</h2>
-      <div class="about-content fade-in">
-        <p class="about-text">
-          GXC에서 경영지원 업무를 담당하며, 재무/회계 관리부터 투자 관련 법률 검토,
-          인사/노무 행정, 정부사업 관리까지 폭넓은 영역을 수행하고 있습니다.
-          체계적인 학습과 실무 경험을 병행하며 스타트업의 성장에 필요한
-          오퍼레이션 역량을 꾸준히 쌓아가고 있습니다.
-        </p>
-        <div class="about-tags">
-          <span class="tag">재무/회계</span>
-          <span class="tag">IR/투자</span>
-          <span class="tag">HR/노무</span>
-          <span class="tag">정부사업</span>
-          <span class="tag">Excel 고급</span>
-          <span class="tag">데이터분석</span>
-          <span class="tag">컴플라이언스</span>
+      <h2 class="section-title fade-in">About</h2>
+      <div class="about-grid fade-in">
+        <div class="about-text">
+          <p>IT 스타트업 경영지원팀 매니저로 일하며 국내 법인과 해외 자회사의 재무·인사·법무·정부사업·IR 실무를 단독으로 운영하고 있습니다.</p>
+          <p>국제통상학을 전공했고, 미국 현지 유통기업에서 근무한 경험을 바탕으로 해외 조직과 함께 일하는 데 익숙합니다.</p>
+          <p>여러 영역이 맞물리는 경영지원 업무를 사람의 기억이 아닌 시스템에 남기기 위해 옵시디언 기반 업무 운영체계와 AI 자동화 워크플로를 직접 설계해 쓰고 있습니다.</p>
+          <p>받은 자료를 그대로 쓰지 않고, 법령 원문과 원자료로 확인한 뒤 내보내는 것을 일하는 원칙으로 삼고 있습니다.</p>
         </div>
+        <aside class="about-facts">
+          <dl>
+            <div><dt>역할</dt><dd>경영지원팀 매니저 (1인 운영)</dd></div>
+            <div><dt>범위</dt><dd>국내 법인 + 해외 자회사</dd></div>
+            <div><dt>전공</dt><dd>국제통상학 (중어중문학 복수전공)</dd></div>
+            <div><dt>해외 경력</dt><dd>미국 소재 유통기업 구매 담당</dd></div>
+            <div><dt>운영 도구</dt><dd>옵시디언 · 엑셀 · Claude 스킬</dd></div>
+          </dl>
+        </aside>
       </div>
     </div>
   </section>
 
-  <!-- Skills Section -->
+  <!-- Areas -->
+  <section class="section section-alt" id="areas">
+    <div class="container">
+      <h2 class="section-title fade-in">담당 영역</h2>
+      <p class="section-subtitle fade-in">여섯 영역을 한 사람이 맡아 운영합니다.</p>
+      <div class="area-grid">
+        <article class="area-card fade-in">
+          <span class="area-index">01</span>
+          <h3>재무·회계</h3>
+          <p>자금 운용과 송금·결제를 관리하고, 부가세·법인세·원천세·지방세 등 세무 전 주기를 대응합니다.</p>
+          <p>결산과 외부감사 대응, 별도·연결 재무제표 관리를 맡고 외부 회계법인과의 커뮤니케이션을 담당합니다.</p>
+        </article>
+        <article class="area-card fade-in">
+          <span class="area-index">02</span>
+          <h3>인사·노무</h3>
+          <p>급여·4대보험·연말정산·퇴직금 산정 등 인사 운영 실무를 처리합니다.</p>
+          <p>채용 공고 기획부터 면접, 입사 조율까지 진행하고, 해외 원격 인력의 계약·온보딩·오프보딩 절차를 표준화했습니다.</p>
+        </article>
+        <article class="area-card fade-in">
+          <span class="area-index">03</span>
+          <h3>IR·투자</h3>
+          <p>정기주주총회·이사회 운영, 정관 개정, 등기, 주주명부와 스톡옵션 관리를 맡고 있습니다.</p>
+          <p>투자 계약 절차를 상법 조문 기준 일정표로 설계하고, 투자자 대상 분기 실적보고서(국문·영문)를 작성합니다.</p>
+        </article>
+        <article class="area-card fade-in">
+          <span class="area-index">04</span>
+          <h3>정부사업</h3>
+          <p>공고 분석 → 사업계획서 작성 → 신청 → 협약 → 정산까지 전 주기를 실무로 수행합니다.</p>
+          <p>입찰·협약 서류를 반복해서 쓸 수 있는 패키지로 정리해 운영하고 있습니다.</p>
+        </article>
+        <article class="area-card fade-in">
+          <span class="area-index">05</span>
+          <h3>해외업무</h3>
+          <p>해외 자회사의 인보이스와 용역계약 증빙을 관리하고, 해외 사업 행사 참가와 해외 출장 서류 실무를 지원합니다.</p>
+        </article>
+        <article class="area-card fade-in">
+          <span class="area-index">06</span>
+          <h3>총무</h3>
+          <p>본점 이전 같은 법인 행정 절차와 기업 인증 관리, 사무실·자산 관리를 담당합니다.</p>
+          <p>대외행사 대관·운영을 맡고, 그 과정을 SOP로 남겼습니다.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cases -->
+  <section class="section" id="cases">
+    <div class="container">
+      <h2 class="section-title fade-in">주요 사례</h2>
+      <p class="section-subtitle fade-in">배경 → 한 일 → 결과 순으로 정리했습니다.</p>
+      <div class="case-list">
+
+        <article class="case-card fade-in">
+          <div class="case-head">
+            <span class="case-number">①</span>
+            <h3>1인 경영지원을 "인계 가능한 시스템"으로 바꾸기</h3>
+          </div>
+          <div class="case-body">
+            <div class="case-step"><h4>배경</h4><p>경영지원 인력이 한 명이라 업무가 개인 머릿속에만 있으면, 그 사람이 빠질 때 회사 업무가 멈추는 구조였습니다.</p></div>
+            <div class="case-step"><h4>한 일</h4><p>업무 도구를 노션에서 옵시디언으로 완전히 옮겨 번호형 폴더 구조로 재구성했습니다. 반복 업무는 커스텀 AI 스킬로, 재발하는 업무는 SOP로 만들었고, 회사 기본 사실은 단일 원본 문서 하나로 모았습니다.</p></div>
+            <div class="case-step case-result"><h4>결과</h4><p>옵시디언이 경영지원의 단일 운영체제가 되어, 신규 담당자도 볼트만 보고 업무 흐름을 파악할 수 있게 됐습니다.</p></div>
+          </div>
+        </article>
+
+        <article class="case-card fade-in">
+          <div class="case-head">
+            <span class="case-number">②</span>
+            <h3>단일 통화 자금 시트를 의사결정 도구로 재설계</h3>
+          </div>
+          <div class="case-body">
+            <div class="case-step"><h4>배경</h4><p>국내 법인과 해외 자회사의 자금을 단일 통화 시트로 수동 관리하고 있어, 경영진의 자금 판단 질문에 바로 답하기 어려웠습니다.</p></div>
+            <div class="case-step"><h4>한 일</h4><p>대시보드·통화별 입출금·정기 비용·미지급 항목으로 시트를 나누고, 다중 통화 환산과 "부족액 식별 → 송금액 계산 → 송금 후 잔액" 시뮬레이션을 자동화했습니다. 매월 정기 보고 SOP도 함께 만들었습니다.</p></div>
+            <div class="case-step case-result"><h4>결과</h4><p>경영진의 자금 의사결정 질문에 한 화면에서 바로 답할 수 있는 상태가 됐습니다.</p></div>
+          </div>
+        </article>
+
+        <article class="case-card fade-in">
+          <div class="case-head">
+            <span class="case-number">③</span>
+            <h3>법률 1차 검토를 법령 원문 기반으로 내재화</h3>
+          </div>
+          <div class="case-body">
+            <div class="case-step"><h4>배경</h4><p>노무·세무·상법 판단이 실무 상식이나 기억에 기대는 경우가 많아, 근거가 약한 보고가 나갈 위험이 있었습니다.</p></div>
+            <div class="case-step"><h4>한 일</h4><p>국가법령정보 공개 API와 오픈소스 법령 조회 도구를 업무용 AI에 연동했습니다. 판단마다 조문·시행령·판례를 확인하고 확인 여부 라벨을 붙이는 규칙을 고정했습니다.</p></div>
+            <div class="case-step case-result"><h4>결과</h4><p>법이 걸린 판단이 조문과 시행일 근거를 갖춘 보고 형식으로 바뀌었고, 실무 상식만으로는 놓칠 수 있는 별도 조항을 미리 잡게 됐습니다.</p></div>
+          </div>
+        </article>
+
+        <article class="case-card fade-in">
+          <div class="case-head">
+            <span class="case-number">④</span>
+            <h3>외부로 나가기 전 "받은 산출물"을 역검증하는 습관</h3>
+          </div>
+          <div class="case-body">
+            <div class="case-step"><h4>배경</h4><p>회계법인·기관·플랫폼에서 받은 자료나 내부 문서가 확인 없이 외부로 나가면 세금·등기·평가에 바로 영향을 줍니다.</p></div>
+            <div class="case-step"><h4>한 일</h4><p>회계법인 산출물, 기관·플랫폼 자료, 계약서와 내부 문서를 원장·법령 원문과 대조한 뒤 제출하는 절차를 분기 내내 운영했습니다.</p></div>
+            <div class="case-step case-result"><h4>결과</h4><p>기간 오류, 견적 오기, 정관과 계약의 충돌 같은 문제를 외부 제출 전에 찾아냈습니다.</p></div>
+          </div>
+        </article>
+
+        <article class="case-card fade-in">
+          <div class="case-head">
+            <span class="case-number">⑤</span>
+            <h3>예산 대비 실적 관리 워크북 구축</h3>
+          </div>
+          <div class="case-body">
+            <div class="case-step"><h4>배경</h4><p>월별 지출 추적이 여러 엑셀 파일에 흩어져 있어 예산을 통제하기 어려웠습니다.</p></div>
+            <div class="case-step"><h4>한 일</h4><p>실제 계정원장을 기준으로 계정과목을 정리해 카테고리로 묶었습니다. 월별 예산 수립 → 실적 입력 → 차이 분석 흐름을 자동화했고, 이후 중앙 가정 시트와 연동되도록 확장했습니다.</p></div>
+            <div class="case-step case-result"><h4>결과</h4><p>예산 대비 실적을 한 체계에서 관리하는 관리회계 기반을 만들었습니다.</p></div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
   <section class="section section-alt" id="skills">
     <div class="container">
-      <h2 class="section-title fade-in">Skills & Expertise</h2>
-      <div class="skills-grid">
-        <!-- Finance & Accounting -->
-        <div class="skill-category fade-in">
-          <div class="skill-category-header">
-            <span class="skill-icon">&#128200;</span>
-            <h3>재무 / 회계</h3>
-          </div>
-          <div class="skill-items">
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>세무 관리</span><span class="skill-pct">75%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="75"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>월말 결산</span><span class="skill-pct">70%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>전표 처리</span><span class="skill-pct">80%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="80"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>재무제표 분석</span><span class="skill-pct">65%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="65"></div></div>
-            </div>
-          </div>
+      <h2 class="section-title fade-in">스킬·도구</h2>
+      <div class="skill-grid">
+        <div class="skill-card fade-in">
+          <h3>엑셀</h3>
+          <p>함수 조합(VLOOKUP·IF), 피벗, 관리회계 워크북·자금 시뮬레이션 설계</p>
         </div>
-
-        <!-- IR & Investment -->
-        <div class="skill-category fade-in">
-          <div class="skill-category-header">
-            <span class="skill-icon">&#128176;</span>
-            <h3>IR / 투자</h3>
-          </div>
-          <div class="skill-items">
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>주주간계약(SHA)</span><span class="skill-pct">70%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>스톡옵션 설계</span><span class="skill-pct">65%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="65"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>TTC 설계</span><span class="skill-pct">60%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="60"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>투자 라운드</span><span class="skill-pct">60%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="60"></div></div>
-            </div>
-          </div>
+        <div class="skill-card fade-in">
+          <h3>옵시디언</h3>
+          <p>번호형 볼트 구조, Templater·Tasks 플러그인</p>
         </div>
-
-        <!-- HR -->
-        <div class="skill-category fade-in">
-          <div class="skill-category-header">
-            <span class="skill-icon">&#128101;</span>
-            <h3>HR / 노무</h3>
-          </div>
-          <div class="skill-items">
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>인사 관리</span><span class="skill-pct">75%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="75"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>근로계약 관리</span><span class="skill-pct">70%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>노동법 이해</span><span class="skill-pct">65%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="65"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>급여 체계 설계</span><span class="skill-pct">60%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="60"></div></div>
-            </div>
-          </div>
+        <div class="skill-card fade-in">
+          <h3>AI 업무 자동화</h3>
+          <p>Claude 커스텀 스킬 설계·운영, 예약 작업 자동화, MCP 연동(법령 원문 조회, 옵시디언 연동)</p>
         </div>
-
-        <!-- Government & Technical -->
-        <div class="skill-category fade-in">
-          <div class="skill-category-header">
-            <span class="skill-icon">&#128187;</span>
-            <h3>정부사업 / 기술</h3>
-          </div>
-          <div class="skill-items">
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>정부 보조금</span><span class="skill-pct">70%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>컴플라이언스</span><span class="skill-pct">65%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="65"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>Excel (고급)</span><span class="skill-pct">85%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
-            </div>
-            <div class="skill-item">
-              <div class="skill-info">
-                <span>데이터 분석</span><span class="skill-pct">60%</span>
-              </div>
-              <div class="skill-bar"><div class="skill-fill" data-width="60"></div></div>
-            </div>
-          </div>
+        <div class="skill-card fade-in">
+          <h3>협업 도구</h3>
+          <p>Gmail, Google Drive, Slack</p>
+        </div>
+        <div class="skill-card fade-in">
+          <h3>ERP</h3>
+          <p>클라우드 ERP 1차 셋업(홈택스·은행·법인카드 연동)</p>
+        </div>
+        <div class="skill-card fade-in">
+          <h3>문서 표준화</h3>
+          <p>공문 서식, docx·pptx 폰트 표준, 인보이스·인사·급여 템플릿, SOP</p>
+        </div>
+        <div class="skill-card fade-in">
+          <h3>실무 지식</h3>
+          <p>결산·세무 신고 대응, 주총·이사회·등기, 정부사업 전 주기</p>
+        </div>
+        <div class="skill-card fade-in">
+          <h3>언어</h3>
+          <p>비즈니스 영어(미국 현지 근무 경험)</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Excel Demo Section -->
-  <section class="section" id="excel-demo">
-    <div class="container">
-      <h2 class="section-title fade-in">Excel Mastery</h2>
-      <p class="section-subtitle fade-in">실무에서 활용하는 엑셀 고급 함수와 자동화 기법</p>
-
-      <!-- Excel Skill Dashboard -->
-      <div class="excel-dashboard fade-in">
-        <div class="excel-tabs">
-          <button class="excel-tab active" data-tab="xlookup">XLOOKUP</button>
-          <button class="excel-tab" data-tab="pivot">피벗테이블</button>
-          <button class="excel-tab" data-tab="conditional">조건부 서식</button>
-          <button class="excel-tab" data-tab="macro">자동화 매크로</button>
-        </div>
-
-        <!-- XLOOKUP Tab -->
-        <div class="excel-panel active" id="panel-xlookup">
-          <div class="excel-demo-layout">
-            <div class="excel-code-block">
-              <div class="code-header">
-                <span class="code-dot red"></span>
-                <span class="code-dot yellow"></span>
-                <span class="code-dot green"></span>
-                <span class="code-title">수식 입력창</span>
-              </div>
-              <div class="code-body">
-                <span class="fx">=XLOOKUP(</span><br>
-                <span class="arg">&nbsp;&nbsp;검색값,</span> <span class="comment">// 찾을 직원 ID</span><br>
-                <span class="arg">&nbsp;&nbsp;검색범위,</span> <span class="comment">// 직원 DB 테이블</span><br>
-                <span class="arg">&nbsp;&nbsp;반환범위,</span> <span class="comment">// 급여 컬럼</span><br>
-                <span class="arg">&nbsp;&nbsp;"미등록",</span> <span class="comment">// 못 찾을 때 기본값</span><br>
-                <span class="arg">&nbsp;&nbsp;0,</span> <span class="comment">// 정확히 일치</span><br>
-                <span class="arg">&nbsp;&nbsp;1</span> <span class="comment">// 첫 번째→마지막</span><br>
-                <span class="fx">)</span>
-              </div>
-            </div>
-            <div class="excel-info">
-              <h3>XLOOKUP 활용 사례</h3>
-              <div class="use-case-list">
-                <div class="use-case">
-                  <span class="use-case-icon">&#128178;</span>
-                  <div>
-                    <strong>급여 대장 자동 매칭</strong>
-                    <p>직원 ID로 급여, 수당, 공제 항목을 한 번에 조회</p>
-                  </div>
-                </div>
-                <div class="use-case">
-                  <span class="use-case-icon">&#128200;</span>
-                  <div>
-                    <strong>거래처별 매출 추적</strong>
-                    <p>거래처 코드로 월별 매출 데이터 자동 집계</p>
-                  </div>
-                </div>
-                <div class="use-case">
-                  <span class="use-case-icon">&#128203;</span>
-                  <div>
-                    <strong>계정과목 자동 분류</strong>
-                    <p>전표 입력 시 계정과목 코드로 분류명 자동 입력</p>
-                  </div>
-                </div>
-              </div>
-              <div class="excel-badge-row">
-                <span class="excel-badge">VLOOKUP 대체</span>
-                <span class="excel-badge">양방향 검색</span>
-                <span class="excel-badge">에러 처리 내장</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pivot Table Tab -->
-        <div class="excel-panel" id="panel-pivot">
-          <div class="excel-demo-layout">
-            <div class="excel-spreadsheet">
-              <div class="spreadsheet-header">
-                <span class="code-dot red"></span>
-                <span class="code-dot yellow"></span>
-                <span class="code-dot green"></span>
-                <span class="code-title">피벗테이블 결과</span>
-              </div>
-              <table class="mini-spreadsheet">
-                <thead>
-                  <tr><th>부서</th><th>Q1</th><th>Q2</th><th>증감률</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>개발팀</td><td class="num">45,200</td><td class="num">52,800</td><td class="num positive">+16.8%</td></tr>
-                  <tr><td>마케팅</td><td class="num">32,100</td><td class="num">28,500</td><td class="num negative">-11.2%</td></tr>
-                  <tr><td>경영지원</td><td class="num">18,300</td><td class="num">19,100</td><td class="num positive">+4.4%</td></tr>
-                  <tr class="total-row"><td>합계</td><td class="num">95,600</td><td class="num">100,400</td><td class="num positive">+5.0%</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="excel-info">
-              <h3>피벗테이블 활용 사례</h3>
-              <div class="use-case-list">
-                <div class="use-case">
-                  <span class="use-case-icon">&#128202;</span>
-                  <div>
-                    <strong>부서별 예산 집행 분석</strong>
-                    <p>수천 건의 전표를 부서/계정/월별로 즉시 크로스탭 분석</p>
-                  </div>
-                </div>
-                <div class="use-case">
-                  <span class="use-case-icon">&#128176;</span>
-                  <div>
-                    <strong>월별 비용 추이 리포트</strong>
-                    <p>경영진 보고용 분기별 비용 비교 대시보드 자동 생성</p>
-                  </div>
-                </div>
-              </div>
-              <div class="excel-badge-row">
-                <span class="excel-badge">크로스탭 분석</span>
-                <span class="excel-badge">슬라이서 필터</span>
-                <span class="excel-badge">자동 갱신</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Conditional Formatting Tab -->
-        <div class="excel-panel" id="panel-conditional">
-          <div class="excel-demo-layout">
-            <div class="excel-spreadsheet">
-              <div class="spreadsheet-header">
-                <span class="code-dot red"></span>
-                <span class="code-dot yellow"></span>
-                <span class="code-dot green"></span>
-                <span class="code-title">조건부 서식 적용 예시</span>
-              </div>
-              <table class="mini-spreadsheet conditional-table">
-                <thead>
-                  <tr><th>항목</th><th>예산</th><th>실적</th><th>달성률</th><th>상태</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>인건비</td><td class="num">50,000</td><td class="num">48,200</td><td class="num bar-cell"><div class="cell-bar" style="width:96%">96%</div></td><td><span class="status-dot green-dot"></span></td></tr>
-                  <tr><td>운영비</td><td class="num">20,000</td><td class="num">23,500</td><td class="num bar-cell"><div class="cell-bar over" style="width:100%">117%</div></td><td><span class="status-dot red-dot"></span></td></tr>
-                  <tr><td>마케팅</td><td class="num">15,000</td><td class="num">12,800</td><td class="num bar-cell"><div class="cell-bar" style="width:85%">85%</div></td><td><span class="status-dot yellow-dot"></span></td></tr>
-                  <tr><td>R&D</td><td class="num">30,000</td><td class="num">29,100</td><td class="num bar-cell"><div class="cell-bar" style="width:97%">97%</div></td><td><span class="status-dot green-dot"></span></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="excel-info">
-              <h3>조건부 서식 활용</h3>
-              <div class="use-case-list">
-                <div class="use-case">
-                  <span class="use-case-icon">&#127919;</span>
-                  <div>
-                    <strong>예산 초과 자동 알림</strong>
-                    <p>달성률 100% 초과 시 빨간색, 90% 미만 시 노란색으로 즉시 식별</p>
-                  </div>
-                </div>
-              </div>
-              <div class="excel-badge-row">
-                <span class="excel-badge">데이터 막대</span>
-                <span class="excel-badge">아이콘 세트</span>
-                <span class="excel-badge">색조 규칙</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Macro Tab -->
-        <div class="excel-panel" id="panel-macro">
-          <div class="excel-demo-layout">
-            <div class="excel-code-block">
-              <div class="code-header">
-                <span class="code-dot red"></span>
-                <span class="code-dot yellow"></span>
-                <span class="code-dot green"></span>
-                <span class="code-title">VBA 매크로</span>
-              </div>
-              <div class="code-body vba">
-                <span class="kw">Sub</span> <span class="fn">월말결산_자동화()</span><br>
-                <span class="comment-vba">&nbsp;&nbsp;' 1. 전표 데이터 정리</span><br>
-                <span class="arg">&nbsp;&nbsp;Call 중복제거_및_정렬</span><br>
-                <span class="comment-vba">&nbsp;&nbsp;' 2. 계정과목별 집계</span><br>
-                <span class="arg">&nbsp;&nbsp;Call 피벗_자동생성</span><br>
-                <span class="comment-vba">&nbsp;&nbsp;' 3. 보고서 양식 출력</span><br>
-                <span class="arg">&nbsp;&nbsp;Call PDF_저장_및_메일발송</span><br>
-                <span class="kw">End Sub</span>
-              </div>
-            </div>
-            <div class="excel-info">
-              <h3>업무 자동화 사례</h3>
-              <div class="use-case-list">
-                <div class="use-case">
-                  <span class="use-case-icon">&#9889;</span>
-                  <div>
-                    <strong>월말 결산 자동화</strong>
-                    <p>전표 정리 → 집계 → 보고서 생성을 버튼 하나로 처리 (3시간 → 15분)</p>
-                  </div>
-                </div>
-                <div class="use-case">
-                  <span class="use-case-icon">&#128231;</span>
-                  <div>
-                    <strong>급여명세서 자동 발송</strong>
-                    <p>개인별 급여명세서 PDF 생성 후 이메일 자동 발송</p>
-                  </div>
-                </div>
-              </div>
-              <div class="excel-badge-row">
-                <span class="excel-badge">VBA 매크로</span>
-                <span class="excel-badge">반복 업무 제거</span>
-                <span class="excel-badge">3시간→15분</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Video Placeholder -->
-      <div class="video-section fade-in">
-        <h3 class="subsection-title">Demo Video</h3>
-        <div class="video-placeholder">
-          <div class="play-btn">&#9654;</div>
-          <p>엑셀 실무 시연 영상 (준비 중)</p>
-          <span class="video-hint">화면 녹화 또는 YouTube 링크를 추가하세요</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Interactive Case Studies -->
-  <section class="section section-alt" id="case-studies">
-    <div class="container">
-      <h2 class="section-title fade-in">Case Studies</h2>
-      <p class="section-subtitle fade-in">프로젝트의 과정, 결과, 배운 점을 상세히 살펴보세요</p>
-
-      <div class="cases-grid">
-        <!-- Case 1 -->
-        <div class="case-card fade-in" onclick="openCaseModal('case1')">
-          <div class="case-card-inner">
-            <span class="case-number">01</span>
-            <span class="case-tag">IR/투자</span>
-            <h3>SHA 주주간계약 검토</h3>
-            <p>투자 계약의 핵심 조항 분석부터 실무 가이드 문서화까지</p>
-            <div class="case-metrics">
-              <div class="metric"><span class="metric-value">5개</span><span class="metric-label">핵심 조항 분석</span></div>
-              <div class="metric"><span class="metric-value">1건</span><span class="metric-label">가이드 문서</span></div>
-            </div>
-            <span class="case-cta">상세보기 &rarr;</span>
-          </div>
-        </div>
-
-        <!-- Case 2 -->
-        <div class="case-card fade-in" onclick="openCaseModal('case2')">
-          <div class="case-card-inner">
-            <span class="case-number">02</span>
-            <span class="case-tag">재무/회계</span>
-            <h3>월말 결산 프로세스 혁신</h3>
-            <p>수작업 결산을 체계화하고 자동화하여 소요 시간 대폭 단축</p>
-            <div class="case-metrics">
-              <div class="metric"><span class="metric-value">-60%</span><span class="metric-label">소요 시간</span></div>
-              <div class="metric"><span class="metric-value">SOP</span><span class="metric-label">프로세스 표준화</span></div>
-            </div>
-            <span class="case-cta">상세보기 &rarr;</span>
-          </div>
-        </div>
-
-        <!-- Case 3 -->
-        <div class="case-card fade-in" onclick="openCaseModal('case3')">
-          <div class="case-card-inner">
-            <span class="case-number">03</span>
-            <span class="case-tag">HR/노무</span>
-            <h3>TTC 기반 보상 체계 설계</h3>
-            <p>스타트업에 적합한 전사 보상 체계 프레임워크 구축</p>
-            <div class="case-metrics">
-              <div class="metric"><span class="metric-value">전사</span><span class="metric-label">적용 범위</span></div>
-              <div class="metric"><span class="metric-value">TTC</span><span class="metric-label">체계 도입</span></div>
-            </div>
-            <span class="case-cta">상세보기 &rarr;</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Case Study Modal -->
-  <div class="modal-overlay" id="caseModal">
-    <div class="modal">
-      <button class="modal-close" onclick="closeCaseModal()">&times;</button>
-      <div class="modal-body" id="modalBody">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Timeline Section -->
+  <!-- Timeline -->
   <section class="section" id="timeline">
     <div class="container">
-      <h2 class="section-title fade-in">Career Timeline</h2>
-      <div class="timeline">
-        <div class="timeline-item fade-in">
-          <div class="timeline-dot"></div>
+      <h2 class="section-title fade-in">타임라인</h2>
+      <ol class="timeline">
+        <li class="timeline-item fade-in">
+          <span class="timeline-date">2022 – 현재</span>
           <div class="timeline-content">
-            <span class="timeline-date">2026.04</span>
-            <h3>스톡옵션 세무 체계 정립</h3>
-            <p>스톡옵션 법률 구조 및 과세 체계 분석 완료. 임직원 보상 설계의 세무 관점 가이드라인 수립.</p>
+            <h3>IT 스타트업 — 경영지원팀 매니저</h3>
+            <p>재무·인사·IR·정부사업·해외업무·총무를 단독 운영</p>
           </div>
-        </div>
-        <div class="timeline-item fade-in">
-          <div class="timeline-dot"></div>
+        </li>
+        <li class="timeline-item fade-in">
+          <span class="timeline-date">2019 – 2022</span>
           <div class="timeline-content">
-            <span class="timeline-date">2026.04</span>
-            <h3>ABTC 인증 처리 완료</h3>
-            <p>APEC 기업인 여행카드(ABTC) 관련 문서 작업 및 인증 프로세스 완료.</p>
+            <h3>미국 소재 유통기업 — 재고관리 인턴 → 구매(Purchasing) 담당</h3>
           </div>
-        </div>
-        <div class="timeline-item fade-in">
-          <div class="timeline-dot"></div>
+        </li>
+        <li class="timeline-item fade-in">
+          <span class="timeline-date">2018 – 2019</span>
           <div class="timeline-content">
-            <span class="timeline-date">2026.04</span>
-            <h3>SHA(주주간계약) 분석</h3>
-            <p>ROFR, Drag-Along, Tag-Along, 희석방지 조항 등 주주간계약의 핵심 조항 분석 및 실무 적용.</p>
+            <h3>미국 비즈니스 취업연수 과정 수료</h3>
           </div>
-        </div>
-        <div class="timeline-item fade-in">
-          <div class="timeline-dot"></div>
+        </li>
+        <li class="timeline-item fade-in">
+          <span class="timeline-date">2017</span>
           <div class="timeline-content">
-            <span class="timeline-date">2026.04</span>
-            <h3>IT 스타트업 런웨이 관리 체계 수립</h3>
-            <p>현금흐름 기반 런웨이 관리 프레임워크 학습 및 GXC 적용 방안 도출.</p>
+            <h3>중국 교환학생</h3>
           </div>
-        </div>
-        <div class="timeline-item fade-in">
-          <div class="timeline-dot"></div>
+        </li>
+        <li class="timeline-item fade-in">
+          <span class="timeline-date">2013 – 2019</span>
           <div class="timeline-content">
-            <span class="timeline-date">2026 ~</span>
-            <h3>GXC 경영지원팀 합류</h3>
-            <p>재무/회계, IR, HR, 정부사업 등 경영지원 전반 업무 담당. 스타트업 운영 기반 구축.</p>
+            <h3>학부 — 국제통상학 전공 (중어중문학 복수전공)</h3>
           </div>
-        </div>
-      </div>
+        </li>
+      </ol>
     </div>
   </section>
 
-  <!-- Certifications Section -->
-  <section class="section section-alt" id="certifications">
-    <div class="container">
-      <h2 class="section-title fade-in">Certifications & Learning</h2>
-      <div class="cert-grid">
-        <div class="cert-card fade-in">
-          <div class="cert-badge preparing">준비중</div>
-          <h3>전산회계 1급</h3>
-          <p>한국세무사회</p>
-          <span class="cert-date">2026.06 목표</span>
-        </div>
-        <div class="cert-card fade-in">
-          <div class="cert-badge preparing">준비중</div>
-          <h3>전산세무 2급</h3>
-          <p>한국세무사회</p>
-          <span class="cert-date">2026.06 목표</span>
-        </div>
-      </div>
-
-      <h3 class="subsection-title fade-in">Recent Learning</h3>
-      <div class="learning-list fade-in">
-        <div class="learning-item">
-          <span class="learning-date">2026.04.16</span>
-          <span class="learning-topic">스톡옵션 과세 체계</span>
-          <span class="learning-tag">IR/투자</span>
-        </div>
-        <div class="learning-item">
-          <span class="learning-date">2026.04.14</span>
-          <span class="learning-topic">스톡옵션 법률 구조</span>
-          <span class="learning-tag">IR/투자</span>
-        </div>
-        <div class="learning-item">
-          <span class="learning-date">2026.04.10</span>
-          <span class="learning-topic">주주간계약(SHA) 핵심 조항</span>
-          <span class="learning-tag">IR/투자</span>
-        </div>
-        <div class="learning-item">
-          <span class="learning-date">2026.04.08</span>
-          <span class="learning-topic">IT 스타트업 런웨이 관리</span>
-          <span class="learning-tag">재무</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Projects Section -->
-  <section class="section" id="projects">
-    <div class="container">
-      <h2 class="section-title fade-in">Project Gallery</h2>
-      <div class="project-filters fade-in">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="finance">재무/회계</button>
-        <button class="filter-btn" data-filter="ir">IR/투자</button>
-        <button class="filter-btn" data-filter="hr">HR/노무</button>
-        <button class="filter-btn" data-filter="gov">정부사업</button>
-      </div>
-      <div class="project-grid">
-        <div class="project-card fade-in" data-category="ir">
-          <div class="project-card-header">
-            <span class="project-category-tag">IR/투자</span>
-          </div>
-          <h3>SHA 주주간계약 검토</h3>
-          <p>ROFR, Drag-Along, Tag-Along, 희석방지 조항 분석 및 투자 계약 실무 적용</p>
-          <div class="project-result">
-            <span class="result-label">성과</span>
-            <span>투자 계약 핵심 조항 가이드 문서화</span>
-          </div>
-        </div>
-        <div class="project-card fade-in" data-category="ir">
-          <div class="project-card-header">
-            <span class="project-category-tag">IR/투자</span>
-          </div>
-          <h3>스톡옵션 체계 설계</h3>
-          <p>법률 구조 분석, 과세 체계 정립, 임직원 보상 설계 가이드라인 수립</p>
-          <div class="project-result">
-            <span class="result-label">성과</span>
-            <span>스톡옵션 세무/법률 통합 가이드 완성</span>
-          </div>
-        </div>
-        <div class="project-card fade-in" data-category="hr">
-          <div class="project-card-header">
-            <span class="project-category-tag">HR/노무</span>
-          </div>
-          <h3>급여 체계 설계</h3>
-          <p>TTC(Total Target Compensation) 기반 급여 체계 설계 및 보상 구조 수립</p>
-          <div class="project-result">
-            <span class="result-label">성과</span>
-            <span>전사 보상 체계 프레임워크 구축</span>
-          </div>
-        </div>
-        <div class="project-card fade-in" data-category="gov">
-          <div class="project-card-header">
-            <span class="project-category-tag">정부사업</span>
-          </div>
-          <h3>ABTC 인증 처리</h3>
-          <p>APEC 기업인 여행카드 관련 서류 준비 및 인증 프로세스 관리</p>
-          <div class="project-result">
-            <span class="result-label">성과</span>
-            <span>인증 완료 및 프로세스 SOP 문서화</span>
-          </div>
-        </div>
-        <div class="project-card fade-in" data-category="finance">
-          <div class="project-card-header">
-            <span class="project-category-tag">재무/회계</span>
-          </div>
-          <h3>런웨이 관리 체계</h3>
-          <p>IT 스타트업 현금흐름 기반 런웨이 관리 프레임워크 구축</p>
-          <div class="project-result">
-            <span class="result-label">성과</span>
-            <span>월별 런웨이 모니터링 대시보드 구축</span>
-          </div>
-        </div>
-        <div class="project-card fade-in" data-category="finance">
-          <div class="project-card-header">
-            <span class="project-category-tag">재무/회계</span>
-          </div>
-          <h3>월말 결산 프로세스</h3>
-          <p>매월 재무제표 마감 및 결산 프로세스 체계화, 전표 처리 자동화</p>
-          <div class="project-result">
-            <span class="result-label">성과</span>
-            <span>결산 소요 시간 단축 및 프로세스 표준화</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact / Footer -->
+  <!-- Contact -->
   <footer class="footer" id="contact">
     <div class="container">
       <div class="footer-content fade-in">
-        <h2>Let's Connect</h2>
-        <p>새로운 기회나 협업에 대해 이야기하고 싶으시다면 연락주세요.</p>
-        <div class="footer-links">
-          <a href="mailto:your-email@example.com" class="footer-link">
-            <span class="link-icon">&#9993;</span>
-            <span>Email</span>
-          </a>
-          <a href="https://linkedin.com" class="footer-link" target="_blank" rel="noopener">
-            <span class="link-icon">in</span>
-            <span>LinkedIn</span>
-          </a>
-        </div>
+        <h2>연락 방식</h2>
+        <p>이메일로 연락 주시면 확인 후 답장드리겠습니다.</p>
+        <a href="mailto:namgyu1412@naver.com" class="footer-link">
+          <span class="link-icon">&#9993;</span>
+          <span>namgyu1412@naver.com</span>
+        </a>
       </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 양남규. All rights reserved.</p>
-      </div>
+      <p class="footer-copy">&copy; 2026 Duke Yang</p>
     </div>
   </footer>
 
