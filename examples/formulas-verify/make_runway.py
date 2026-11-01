@@ -12,6 +12,9 @@
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter as L
+from openpyxl.chart import BarChart, LineChart, Reference
+from openpyxl.chart.shapes import GraphicalProperties
+from openpyxl.drawing.line import LineProperties
 
 FONT = "맑은 고딕"
 F = Font(name=FONT, size=10)
@@ -28,6 +31,9 @@ FIRST_COL = 3                      # C열부터 월
 LAST_COL = FIRST_COL + MONTHS - 1  # T열
 C0, C1 = L(FIRST_COL), L(LAST_COL)
 NUM = "#,##0;[Red]-#,##0"
+# dataviz 기본 팔레트 (검증된 순서: 1 blue, 2 orange). 텍스트는 잉크색, 시리즈색은 마크에만.
+C_BLUE, C_ORANGE = "2A78D6", "EB6834"
+C_INK, C_INK2, C_MUTED, C_GRID = "0B0B0B", "52514E", "8A8984", "E5E4E0"
 
 
 def put(ws, addr, v, font=F, fill=None, fmt=None, align=None):
@@ -211,6 +217,123 @@ def build(path="runway_template.xlsx"):
     sm.column_dimensions["A"].width = 30
     sm.column_dimensions["B"].width = 20
     sm.column_dimensions["C"].width = 44
+
+
+    # ───────────── 보고 (대표님·이사님 공유용) ─────────────
+    rp = wb.create_sheet("보고")
+    rp.sheet_view.showGridLines = False
+    for col, w in zip("ABCDEFGHIJKLMN", [2, 24, 3, 24, 3, 24, 3, 24, 2, 2, 2, 2, 2, 2]):
+        rp.column_dimensions[col].width = w
+    rp.row_dimensions[2].height = 30
+    put(rp, "B2", "현금 런웨이 보고", Font(name=FONT, size=18, bold=True, color=C_INK))
+    put(rp, "B3", '="기준월 "&YEAR(입력!B5)&"-"&RIGHT("0"&MONTH(入력!B5),2)&" · 입금·출금 기준 · 단위: 원"'.replace("入력", "입력"),
+        Font(name=FONT, size=10, color=C_MUTED))
+
+    # 헤드라인 숫자 4개 (stat tile): 라벨은 보조 잉크, 숫자는 굵게 크게
+    tiles = [
+        ("B", "런웨이", '=IF(ISNUMBER(요약!B7),TEXT(요약!B7,"0.0")&"개월",요약!B7)', None),
+        ("D", "현금 소진 예상월", '=IF(ISNUMBER(요약!B8),YEAR(요약!B8)&"-"&RIGHT("0"&MONTH(요약!B8),2),요약!B8)', None),
+        ("F", "기초현금 (백만원)", "=요약!B5", '#,##0,,'),
+        ("H", "18개월 내 최저 잔액 (백만원)", "=요약!B9", '#,##0,,;[Red]-#,##0,,'),
+    ]
+    rp.row_dimensions[5].height = 18
+    rp.row_dimensions[6].height = 34
+    for col, label, f, fmt in tiles:
+        put(rp, f"{col}5", label, Font(name=FONT, size=10, color=C_INK2))
+        c = put(rp, f"{col}6", f, Font(name=FONT, size=20, bold=True, color=C_INK), fmt=fmt, align="left")
+        for r_ in (5, 6):
+            rp[f"{col}{r_}"].border = Border(bottom=Side(style="thin", color=C_GRID)) if r_ == 6 else Border()
+    put(rp, "B7", '="비용 "&IF(요약!B15>=0,"+","")&TEXT(요약!B15,"0%")&" 시 런웨이 "'
+                  '&IF(ISNUMBER(요약!B17),TEXT(요약!B17,"0.0")&"개월",요약!B17)'
+                  '&IF(ISNUMBER(요약!B18)," ("&IF(요약!B18>=0,"+","")&TEXT(요약!B18,"0.0")&"개월)","")',
+        Font(name=FONT, size=10, color=C_INK2))
+
+    # 보고 문구 (카톡·Slack 첫 줄용)
+    put(rp, "B9", "보고 문구", Font(name=FONT, size=10, color=C_INK2))
+    put(rp, "B10", '="런웨이 "&IF(ISNUMBER(요약!B7),TEXT(요약!B7,"0.0")&"개월",요약!B7)&", 현금 소진 예상 "'
+                   '&IF(ISNUMBER(요약!B8),YEAR(요약!B8)&"-"&RIGHT("0"&MONTH(요약!B8),2),요약!B8)'
+                   '&". 기초현금 "&TEXT(요약!B5/1000000,"#,##0")&"백만원, 월평균 순소진 "'
+                   '&TEXT(ABS(요약!B6)/1000000,"#,##0")&"백만원."',
+        Font(name=FONT, size=11, color=C_INK))
+    rp.merge_cells("B10:H10")
+    rp["B10"].alignment = Alignment(wrap_text=True, vertical="top")
+    rp.row_dimensions[10].height = 34
+
+    cats = Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=4)  # 월(날짜)
+    cf_sheet_cols = (FIRST_COL, LAST_COL)
+
+    def set_title(ch, text):
+        from openpyxl.chart.title import Title
+        from openpyxl.chart.text import RichText, Text
+        from openpyxl.drawing.text import Paragraph, ParagraphProperties, CharacterProperties, RegularTextRun, Font as DFont
+        cp = CharacterProperties(sz=1100, b=True, solidFill=C_INK, latin=DFont(typeface=FONT), ea=DFont(typeface=FONT))
+        para = Paragraph(pPr=ParagraphProperties(defRPr=cp), r=[RegularTextRun(rPr=cp, t=text)])
+        ch.title = Title(tx=Text(rich=RichText(p=[para])), overlay=False)
+
+    def style_axes(ch, y_title):
+        ch.x_axis.delete = False
+        ch.y_axis.delete = False
+        ch.x_axis.number_format = "yy-mm"
+        ch.x_axis.majorTickMark = "none"
+        ch.y_axis.number_format = '#,##0,,'       # 백만원 단위 표시
+        ch.y_axis.title = y_title
+        ch.y_axis.majorGridlines.spPr = GraphicalProperties(ln=LineProperties(solidFill=C_GRID, w=6350))
+        ch.x_axis.spPr = GraphicalProperties(ln=LineProperties(solidFill=C_GRID, w=6350))
+        ch.y_axis.spPr = GraphicalProperties(ln=LineProperties(noFill=True))
+        ch.legend = None
+
+    # 차트 1: 기말현금 추이 (단일 시리즈 선, 범례 없음, 2.25pt 선)
+    ln = LineChart()
+    set_title(ln, "기말현금 추이 (백만원)")
+    ln.style = 2
+    ln.height, ln.width = 7.2, 19.5
+    ln.add_data(Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=end_row), from_rows=True, titles_from_data=False)
+    ln.set_categories(cats)
+    s1 = ln.series[0]
+    s1.graphicalProperties.line.solidFill = C_BLUE
+    s1.graphicalProperties.line.width = 28575  # 2.25pt
+    s1.marker.symbol = "circle"
+    s1.marker.size = 5
+    s1.marker.graphicalProperties = GraphicalProperties(solidFill=C_BLUE)
+    s1.marker.graphicalProperties.line.solidFill = "FFFFFF"
+    s1.smooth = False
+    style_axes(ln, None)
+    rp.add_chart(ln, "B12")
+
+    # 차트 2: 월별 유입 vs 유출 (2 시리즈 묶은 막대, 범례 있음)
+    bar = BarChart()
+    bar.type = "col"
+    bar.grouping = "clustered"
+    set_title(bar, "월별 현금 유입·유출 (백만원)")
+    bar.style = 2
+    bar.height, bar.width = 7.2, 19.5
+    bar.gapWidth = 80
+    bar.overlap = -10
+    bar.add_data(Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=in_total), from_rows=True, titles_from_data=False)
+    bar.add_data(Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=out_total), from_rows=True, titles_from_data=False)
+    bar.set_categories(cats)
+    from openpyxl.chart.series import SeriesLabel
+    from openpyxl.chart.data_source import StrRef
+    bar.series[0].tx = SeriesLabel(v="유입")
+    bar.series[1].tx = SeriesLabel(v="유출")
+    for sr, color in zip(bar.series, (C_BLUE, C_ORANGE)):
+        sr.graphicalProperties.solidFill = color
+        sr.graphicalProperties.line.noFill = True
+    style_axes(bar, None)
+    bar.legend = __import__("openpyxl.chart.legend", fromlist=["Legend"]).Legend()
+    bar.legend.position = "t"
+    rp.add_chart(bar, "B27")
+
+    put(rp, "B42", "읽는 법: 런웨이는 투자금 입금을 뺀 영업 순소진 기준의 보수적 값. 기말현금 추이에는 예정 투자금이 반영됨.",
+        Font(name=FONT, size=9, color=C_MUTED))
+    rp.print_area = "A1:I43"
+    rp.page_setup.orientation = "landscape"
+    rp.page_setup.paperSize = rp.PAPERSIZE_A4
+    rp.sheet_properties.pageSetUpPr.fitToPage = True
+    rp.page_setup.fitToWidth = 1
+    rp.page_setup.fitToHeight = 1
+    rp.print_options.horizontalCentered = True
+    wb.move_sheet("보고", offset=-3)  # 첫 탭으로
 
     wb.save(path)
     layout = dict(row_begin=row_begin, in_total=in_total, out_total=out_total,
