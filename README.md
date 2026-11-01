@@ -10,6 +10,7 @@
 └── decks/         포트폴리오 덱 (디자인 6종 × 원고 2종)
     ├── index.html   갤러리 (슬라이드 뷰어 + pptx/pdf 다운로드)
     ├── BRIEFS.md    디자인 브리프 6종 (팔레트·모티프)
+    ├── v3/          CONTENT.md (16장, 2026-11-01 공개판 원고) + 01-mono-minimal/
     ├── v2/          CONTENT.md (14장, site/ 원고) + 0N-<slug>/
     └── v1/          CONTENT.md (13장, site-old/ 원고) + 0N-<slug>/
                      각 덱 폴더: build.js · deck.pptx · deck.pdf · cover.jpg · slides/*.jpg · meta.json

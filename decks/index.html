@@ -46,8 +46,10 @@
 <div class="wrap">
   <header>
     <h1>덱 갤러리 — 같은 원고, 여섯 가지 디자인</h1>
-    <p>디자인 시스템 6종(<a href="BRIEFS.md">BRIEFS.md</a>)으로 원고 두 가지를 각각 만들었습니다. v2는 2026-10-27 기준 <a href="../site/">경영지원 프로필</a> 원고(14장), v1은 이전 프로필 사이트(<a href="../site-old/">site-old/</a>) 원고(13장)입니다. 표지를 누르면 슬라이드를 넘겨볼 수 있고, pptx·pdf로 내려받을 수 있습니다.</p>
+    <p>디자인 시스템 6종(<a href="BRIEFS.md">BRIEFS.md</a>)으로 원고 두 가지를 각각 만들었습니다. v3는 2026-11-01 기준 원고(16장, 공개판)로 Mono Minimal 한 종, v2는 2026-10-27 기준 <a href="../site/">경영지원 프로필</a> 원고(14장), v1은 이전 프로필 사이트(<a href="../site-old/">site-old/</a>) 원고(13장)입니다. 표지를 누르면 슬라이드를 넘겨볼 수 있고, pptx·pdf로 내려받을 수 있습니다.</p>
   </header>
+  <h2 class="ver">v3 — 경영지원 프로필 원고 2026-11-01 (16장, 공개판) · <a href="v3/CONTENT.md">원고</a></h2>
+  <div class="grid" id="grid-v3"></div>
   <h2 class="ver">v2 — 경영지원 프로필 원고 (14장) · <a href="v2/CONTENT.md">원고</a></h2>
   <div class="grid" id="grid-v2"></div>
   <h2 class="ver">v1 — 이전 프로필 사이트 원고 (13장) · <a href="v1/CONTENT.md">원고</a></h2>
@@ -75,6 +77,7 @@ const DECKS = [
   {slug:"06-korean-formal",name:"Korean Formal", mood:"국내 기관 보고서형, 감청·하늘색 구획과 정갈한 표", palette:["#1E2761","#CADCFC","#EEF3FB","#1A1A1A","#C8102E"]},
 ];
 const VERSIONS = [
+  {key:"v3", slides:16, only:["01-mono-minimal"]},
   {key:"v2", slides:14},
   {key:"v1", slides:13},
 ];
@@ -82,6 +85,7 @@ const CARDS = [];
 VERSIONS.forEach(v=>{
   const grid = document.getElementById('grid-'+v.key);
   DECKS.forEach((d,i)=>{
+    if (v.only && !v.only.includes(d.slug)) return;
     const idx = CARDS.length; CARDS.push({...d, base:`${v.key}/${d.slug}`, slides:v.slides});
     const el = document.createElement('article'); el.className='card';
     el.innerHTML = `
