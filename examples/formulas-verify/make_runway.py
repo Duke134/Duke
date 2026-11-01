@@ -211,6 +211,7 @@ def build(path, example=False):
         ("비용 시나리오 증감률", 0.10, "0%", "요약의 '비용 +N%' 시나리오 비율"),
         ("런웨이 계산 기준 개월수", 6, "0", "기준월부터 N개월 평균 순소진으로 런웨이 계산"),
         ("USD 환율(원/달러)", 1_400 if example else None, "#,##0", "원자료에서 통화가 USD인 줄의 환산에 사용"),
+        ("안전 잔액 기준(개월치 유출)", 3, "0", "안전 잔액선 = 향후 N개월 평균 월 유출 × 이 값. 기본 3개월치"),
     ]
     put(ws, "A4", "항목", FB, GRAY); put(ws, "B4", "값", FB, GRAY); put(ws, "C4", "메모", FB, GRAY)
     for i, (k, v, fmt, memo) in enumerate(rows, start=5):
@@ -341,6 +342,18 @@ def build(path, example=False):
     for j in range(MONTHS):
         col = L(CF_FIRST + j)
         put(cf, f"{col}{r}", f"=IF({j + 1}<=입력!$B$8,1,0)", FNOTE, fmt="0")
+    r += 1
+    put(cf, f"A{r}", "안전 잔액선(N개월치 평균 유출)", FB)
+    safe_row = r
+    for j in range(MONTHS):
+        col = L(CF_FIRST + j)
+        put(cf, f"{col}{r}", "=요약!$B$16", FB, fmt=NUM)
+    r += 1
+    put(cf, f"A{r}", "안전선 미달 플래그(기말<안전선)", FNOTE)
+    safe_flag_row = r
+    for j in range(MONTHS):
+        col = L(CF_FIRST + j)
+        put(cf, f"{col}{r}", f"=IF({col}{end_row}<{col}{safe_row},1,0)", FNOTE, fmt="0")
     cf.freeze_panes = "C5"
 
     # ───── 요약 ─────
@@ -365,23 +378,27 @@ def build(path, example=False):
         ("보수적 런웨이(개월)", '=IF(B11<0,B5/ABS(B11),"영업 흑자(소진 없음)")', "0.0", "예정 매출·지원금이 안 들어올 때"),
         ("18개월 유입 합계", f"=SUM({rng(in_total)})", NUM, ""),
         ("18개월 유출 합계", f"=SUM({rng(out_total)})", NUM, ""),
+        ("향후 N개월 평균 월 유출", f"=SUMPRODUCT({rng(incl_row)},{rng(out_total)})/{n}", NUM, "기준월부터 N개월(입력!B8) 유출 평균"),
+        ("안전 잔액선", "=B15*입력!B10", NUM, "평균 월 유출 × 안전 기준 개월수(입력!B10)"),
+        ("안전선 미달 예상월", f'=IFERROR(INDEX({rng(4)},MATCH(1,{rng(safe_flag_row)},0)),"18개월 내 없음")', "yyyy-mm",
+         "기말현금이 처음 안전 잔액선 아래로 내려가는 월"),
     ]
     for i, (k, f, fmt, memo) in enumerate(items, start=5):
         put(sm, f"A{i}", k)
         put(sm, f"B{i}", f, FB, fmt=fmt, align="right")
         put(sm, f"C{i}", memo, FNOTE)
-    put(sm, "A16", "시나리오: 비용 증감", FB, BLUE)
+    put(sm, "A19", "시나리오: 비용 증감", FB, BLUE)
     for j in range(1, 4):
-        sm.cell(row=16, column=j).fill = BLUE
-    put(sm, "A17", "비용 증감률"); put(sm, "B17", "=입력!B7", FB, fmt="+0%;-0%", align="right"); put(sm, "C17", "입력!B7", FNOTE)
-    put(sm, "A18", "시나리오 평균 순소진")
-    put(sm, "B18", f"=(SUMPRODUCT({rng(incl_row)},{rng(in_total)})-SUMPRODUCT({rng(incl_row)},{rng(inv_row)})"
-                   f"-SUMPRODUCT({rng(incl_row)},{rng(out_total)})*(1+B17))/{n}", FB, fmt=NUM, align="right")
-    put(sm, "C18", "(유입 − 투자금) 평균 − 유출 평균 × (1+증감률)", FNOTE)
-    put(sm, "A19", "시나리오 런웨이(개월)")
-    put(sm, "B19", '=IF(B18<0,B5/ABS(B18),"영업 흑자(소진 없음)")', FB, fmt="0.0", align="right")
-    put(sm, "A20", "런웨이 변화(개월)")
-    put(sm, "B20", '=IF(AND(ISNUMBER(B7),ISNUMBER(B19)),B19-B7,"-")', FB, fmt="+0.0;-0.0", align="right")
+        sm.cell(row=19, column=j).fill = BLUE
+    put(sm, "A20", "비용 증감률"); put(sm, "B20", "=입력!B7", FB, fmt="+0%;-0%", align="right"); put(sm, "C20", "입력!B7", FNOTE)
+    put(sm, "A21", "시나리오 평균 순소진")
+    put(sm, "B21", f"=(SUMPRODUCT({rng(incl_row)},{rng(in_total)})-SUMPRODUCT({rng(incl_row)},{rng(inv_row)})"
+                   f"-SUMPRODUCT({rng(incl_row)},{rng(out_total)})*(1+B20))/{n}", FB, fmt=NUM, align="right")
+    put(sm, "C21", "(유입 − 투자금) 평균 − 유출 평균 × (1+증감률)", FNOTE)
+    put(sm, "A22", "시나리오 런웨이(개월)")
+    put(sm, "B22", '=IF(B21<0,B5/ABS(B21),"영업 흑자(소진 없음)")', FB, fmt="0.0", align="right")
+    put(sm, "A23", "런웨이 변화(개월)")
+    put(sm, "B23", '=IF(AND(ISNUMBER(B7),ISNUMBER(B22)),B22-B7,"-")', FB, fmt="+0.0;-0.0", align="right")
     sm.column_dimensions["A"].width = 36
     sm.column_dimensions["B"].width = 20
     sm.column_dimensions["C"].width = 50
@@ -409,8 +426,9 @@ def build(path, example=False):
         put(rp, f"{col}5", label, Font(name=FONT, size=10, color=C_INK2))
         put(rp, f"{col}6", f, Font(name=FONT, size=20, bold=True, color=C_INK), fmt=fmt, align="left",
             border=Border(bottom=Side(style="thin", color=C_GRID)))
-    put(rp, "B7", '="비용 "&IF(요약!B17>=0,"+","")&TEXT(요약!B17,"0%")&" 시 런웨이 "&' + mo("요약!B19") +
-                  '&IF(ISNUMBER(요약!B20)," ("&IF(요약!B20>=0,"+","")&TEXT(요약!B20,"0.0")&"개월)","")',
+    put(rp, "B7", '="비용 "&IF(요약!B20>=0,"+","")&TEXT(요약!B20,"0%")&" 시 런웨이 "&' + mo("요약!B22") +
+                  '&IF(ISNUMBER(요약!B23)," ("&IF(요약!B23>=0,"+","")&TEXT(요약!B23,"0.0")&"개월)","")'
+                  '&" · 안전 잔액선 "&TEXT(요약!B16/1000000,"#,##0")&"백만원("&입력!B10&"개월치 유출), 미달 예상 "&' + mon("요약!B17"),
         Font(name=FONT, size=10, color=C_INK2))
     put(rp, "B9", "보고 문구", Font(name=FONT, size=10, color=C_INK2))
     put(rp, "B10", '="런웨이 "&' + mo("요약!B7") + '&", 예정 수입 제외 시 "&' + mo("요약!B12") +
@@ -436,7 +454,19 @@ def build(path, example=False):
     s1.marker.graphicalProperties = GraphicalProperties(solidFill=C_BLUE)
     s1.marker.graphicalProperties.line.solidFill = "FFFFFF"
     s1.smooth = False
+    # 안전 잔액선: 주황 점선, 마커 없음
+    ln.add_data(Reference(cf, min_col=CF_FIRST, max_col=CF_LAST, min_row=safe_row), from_rows=True, titles_from_data=False)
+    s2 = ln.series[1]
+    s2.graphicalProperties.line.solidFill = C_ORANGE
+    s2.graphicalProperties.line.width = 19050
+    s2.graphicalProperties.line.dashStyle = "dash"
+    s2.marker.symbol = "none"
+    s2.smooth = False
+    ln.series[0].tx = SeriesLabel(v="기말현금")
+    ln.series[1].tx = SeriesLabel(v="안전 잔액선")
     style_axes(ln)
+    ln.legend = Legend()
+    ln.legend.position = "t"
     rp.add_chart(ln, "B12")
 
     bar = BarChart()
@@ -460,7 +490,11 @@ def build(path, example=False):
     bar.legend.position = "t"
     rp.add_chart(bar, "B27")
     put(rp, "B42", "읽는 법: 런웨이는 투자금을 뺀 영업 순소진 기준. 보수적 런웨이는 '예정' 표시된 매출·지원금도 뺀 값. "
-                   "기말현금 추이에는 예정 투자금이 반영됨.", Font(name=FONT, size=9, color=C_MUTED))
+                   "기말현금 추이에는 예정 투자금이 반영됨. 안전 잔액선은 향후 N개월 평균 월 유출 × 안전 기준 개월수.",
+        Font(name=FONT, size=9, color=C_MUTED))
+    rp.merge_cells("B42:H42")
+    rp["B42"].alignment = Alignment(wrap_text=True, vertical="top")
+    rp.row_dimensions[42].height = 26
     rp.print_area = "A1:I43"
     rp.page_setup.orientation = "landscape"
     rp.page_setup.paperSize = rp.PAPERSIZE_A4
@@ -480,6 +514,7 @@ def build(path, example=False):
     wb.save(path)
     layout = dict(row_begin=row_begin, in_total=in_total, out_total=out_total, inv_row=inv_row, net_row=net_row,
                   op_net_row=op_net_row, cons_row=cons_row, end_row=end_row, flag_row=flag_row, incl_row=incl_row,
+                  safe_row=safe_row, safe_flag_row=safe_flag_row,
                   ex_out=(o_first, o_last), ex_in=(i_first, i_last))
     print("saved", path, layout)
     return layout
