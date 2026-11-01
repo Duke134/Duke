@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>덱 갤러리 | 양남규 포트폴리오 6종</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f6f7f9;--card:#ffffff;--text:#1a1d23;--muted:#6b7280;--line:#e5e7eb;--accent:#2f3c7e;--chip:#eef1f8}
+  @media (prefers-color-scheme: dark){:root{--bg:#0f1115;--card:#171a21;--text:#e8eaf0;--muted:#9aa3b2;--line:#262b36;--accent:#8fa3ff;--chip:#1f2430}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  .wrap{max-width:1180px;margin:0 auto;padding:48px 16px 80px}
+  header h1{font-size:30px;font-weight:700;letter-spacing:-.01em}
+  header p{color:var(--muted);margin-top:8px}
+  header a{color:var(--accent);text-decoration:none}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;margin-top:36px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .cover{position:relative;aspect-ratio:16/9;background:#dcdfe6;cursor:pointer;overflow:hidden}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+  .cover:hover img{transform:scale(1.02)}
+  .cover .badge{position:absolute;left:12px;top:12px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px}
+  .body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .body h2{font-size:19px;font-weight:700}
+  .body .mood{color:var(--muted);font-size:14px;min-height:42px}
+  .palette{display:flex;gap:6px}
+  .palette span{width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.08)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+  .btn{font-size:13px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--text);text-decoration:none;cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  /* viewer */
+  .viewer{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:14px;padding:16px}
+  .viewer.open{display:flex}
+  .viewer img{max-width:min(96vw,1280px);max-height:78vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);background:#fff}
+  .viewer .bar{color:#fff;display:flex;gap:16px;align-items:center;font-size:14px}
+  .viewer button{background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:10px;padding:8px 16px;cursor:pointer;font-family:inherit;font-size:14px}
+  .viewer button:hover{background:rgba(255,255,255,.25)}
+  .viewer .close{position:absolute;top:16px;right:20px;font-size:22px;padding:6px 14px}
+  footer{margin-top:56px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>덱 갤러리 — 같은 원고, 여섯 가지 디자인</h1>
+    <p>프로필 사이트 내용(<a href="../site/">site/</a>)을 13장 덱으로 옮기고, 디자인 시스템 6종으로 각각 만들었습니다. 표지를 누르면 슬라이드를 넘겨볼 수 있고, pptx·pdf로 내려받을 수 있습니다. 원고는 <a href="CONTENT.md">CONTENT.md</a>, 브리프는 <a href="BRIEFS.md">BRIEFS.md</a>.</p>
+  </header>
+  <div class="grid" id="grid"></div>
+  <footer>모든 덱은 맑은 고딕 기준으로 제작. 미리보기 이미지는 LibreOffice 렌더링이라 실제 PowerPoint와 글자 폭이 조금 다를 수 있습니다.</footer>
+</div>
+
+<div class="viewer" id="viewer">
+  <button class="close" id="vClose" aria-label="닫기">×</button>
+  <img id="vImg" alt="슬라이드">
+  <div class="bar">
+    <button id="vPrev">← 이전</button>
+    <span id="vLabel"></span>
+    <button id="vNext">다음 →</button>
+  </div>
+</div>
+
+<script>
+const DECKS = [
+  {slug:"01-mono-minimal", name:"Mono Minimal",  mood:"흰 여백과 차콜 타이포, 커다란 번호 하나로 구획", palette:["#FFFFFF","#212121","#36454F","#F2F2F2","#D64545"]},
+  {slug:"02-dark-tech",    name:"Dark Tech",     mood:"다크 네이비 바탕에 민트 포인트, 글래스 카드", palette:["#0B1221","#141C2F","#E6EDF7","#2EE6A6","#4F8CFF"]},
+  {slug:"03-editorial",    name:"Editorial",     mood:"잡지 화보형 비대칭 그리드, 베리색 색면과 큰 숫자", palette:["#FFFFFF","#6D2E46","#A26769","#ECE2D0","#1F1A1C"]},
+  {slug:"04-pastel-grid",  name:"Pastel Grid",   mood:"세이지·라벤더·피치 파스텔 타일과 둥근 아이콘 배지", palette:["#FFFFFF","#84B59F","#B8B5E1","#F5C6AA","#50808E"]},
+  {slug:"05-bold-typo",    name:"Bold Typo",     mood:"코랄·골드·네이비 색면 분할과 초대형 키워드", palette:["#F96167","#F9E795","#2F3C7E","#FFFFFF","#1B1F3B"]},
+  {slug:"06-korean-formal",name:"Korean Formal", mood:"국내 기관 보고서형, 감청·하늘색 구획과 정갈한 표", palette:["#1E2761","#CADCFC","#EEF3FB","#1A1A1A","#C8102E"]},
+];
+const SLIDES = 13;
+const grid = document.getElementById('grid');
+DECKS.forEach((d,i)=>{
+  const el = document.createElement('article'); el.className='card';
+  el.innerHTML = `
+    <div class="cover" data-i="${i}"><img src="${d.slug}/cover.jpg" alt="${d.name} 표지" loading="lazy"><span class="badge">${String(i+1).padStart(2,'0')} · ${SLIDES}장</span></div>
+    <div class="body">
+      <h2>${d.name}</h2>
+      <div class="mood">${d.mood}</div>
+      <div class="palette">${d.palette.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
+      <div class="actions">
+        <button class="btn primary" data-i="${i}">슬라이드 보기</button>
+        <a class="btn" href="${d.slug}/deck.pptx" download>PPTX</a>
+        <a class="btn" href="${d.slug}/deck.pdf" target="_blank" rel="noopener">PDF</a>
+        <a class="btn" href="${d.slug}/build.js" target="_blank" rel="noopener">소스</a>
+      </div>
+    </div>`;
+  grid.appendChild(el);
+});
+let cur = {deck:0, n:1};
+const viewer=document.getElementById('viewer'), vImg=document.getElementById('vImg'), vLabel=document.getElementById('vLabel');
+function show(){
+  const d = DECKS[cur.deck];
+  vImg.src = `${d.slug}/slides/slide-${String(cur.n).padStart(2,'0')}.jpg`;
+  vLabel.textContent = `${d.name} · ${cur.n} / ${SLIDES}`;
+}
+function open(i){ cur={deck:i,n:1}; viewer.classList.add('open'); document.body.style.overflow='hidden'; show(); }
+function close(){ viewer.classList.remove('open'); document.body.style.overflow=''; }
+document.querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>open(+b.dataset.i)));
+document.getElementById('vClose').addEventListener('click',close);
+document.getElementById('vPrev').addEventListener('click',()=>{cur.n=cur.n>1?cur.n-1:SLIDES;show();});
+document.getElementById('vNext').addEventListener('click',()=>{cur.n=cur.n<SLIDES?cur.n+1:1;show();});
+viewer.addEventListener('click',e=>{ if(e.target===viewer) close(); });
+document.addEventListener('keydown',e=>{
+  if(!viewer.classList.contains('open')) return;
+  if(e.key==='Escape') close();
+  if(e.key==='ArrowLeft') document.getElementById('vPrev').click();
+  if(e.key==='ArrowRight') document.getElementById('vNext').click();
+});
+</script>
+</body>
+</html>
