@@ -1,20 +1,36 @@
-"""GXC 런웨이 시트 템플릿 생성 (숫자 미입력, 입력 칸은 노란색).
+"""GXC 런웨이 시트 생성기.
 
-시트 구성
-  입력        기준월·기초현금·시나리오 비율
-  월별현금흐름 18개월 (열 = 월). B열 '기본값'을 넣으면 매월 자동 반복, 특정 월만 셀을 덧씌워 수정
-  요약        런웨이(개월)·현금 소진 예상월·최저 잔액월·비용 +10% 시나리오
+  python make_runway.py            → runway_template.xlsx (빈 템플릿)
+  python make_runway.py --example  → runway_example.xlsx  (가상 원자료 채운 예시본)
+
+시트
+  보고          대표님·이사님 공유용 한 장 (헤드라인·보고 문구·차트 2개)
+  입력          기준월·기초현금·시나리오율·런웨이 기준 개월수·USD 환율
+  원자료_유출   고정비 목록. 한 줄에 비용 하나 (급여는 급여대장 총액 한 줄)
+  원자료_유입   매출·정부지원금·투자금·이자기타 목록
+  전개표        원자료 각 줄 × 18개월 자동 전개 (검산용, 손대지 않음)
+  월별현금흐름  전개표를 구분별로 합산. 전부 수식
+  요약          런웨이(기본·보수적)·소진 예상월·최저 잔액·비용 시나리오
 
 규칙
-  - 노란 칸만 입력. 흰 칸은 전부 수식.
-  - 금액 단위: 원. 월 단위, 입금·출금 기준(발생 기준 아님).
+  - 노란 칸(입력·원자료)만 입력. 나머지는 전부 수식.
+  - 금액 단위 원. 입금·출금 기준. USD는 입력!B9 환율로 환산.
 """
+import sys
+from datetime import date
+
 from openpyxl import Workbook
+from openpyxl.chart import BarChart, LineChart, Reference
+from openpyxl.chart.legend import Legend
+from openpyxl.chart.series import SeriesLabel
+from openpyxl.chart.shapes import GraphicalProperties
+from openpyxl.chart.text import RichText, Text
+from openpyxl.chart.title import Title
+from openpyxl.drawing.line import LineProperties
+from openpyxl.drawing.text import CharacterProperties, Font as DFont, Paragraph, ParagraphProperties, RegularTextRun
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter as L
-from openpyxl.chart import BarChart, LineChart, Reference
-from openpyxl.chart.shapes import GraphicalProperties
-from openpyxl.drawing.line import LineProperties
+from openpyxl.worksheet.datavalidation import DataValidation
 
 FONT = "맑은 고딕"
 F = Font(name=FONT, size=10)
@@ -26,17 +42,51 @@ GRAY = PatternFill("solid", fgColor="F2F2F2")
 BLUE = PatternFill("solid", fgColor="DDEBF7")
 THIN = Side(style="thin", color="BFBFBF")
 BOX = Border(top=THIN, bottom=THIN, left=THIN, right=THIN)
-MONTHS = 18
-FIRST_COL = 3                      # C열부터 월
-LAST_COL = FIRST_COL + MONTHS - 1  # T열
-C0, C1 = L(FIRST_COL), L(LAST_COL)
 NUM = "#,##0;[Red]-#,##0"
-# dataviz 기본 팔레트 (검증된 순서: 1 blue, 2 orange). 텍스트는 잉크색, 시리즈색은 마크에만.
 C_BLUE, C_ORANGE = "2A78D6", "EB6834"
 C_INK, C_INK2, C_MUTED, C_GRID = "0B0B0B", "52514E", "8A8984", "E5E4E0"
 
+MONTHS = 18
+CATS_OUT = ["급여(실지급)", "4대보험·원천세 납부", "임차료·관리비", "외주·용역비",
+            "서버·SaaS·라이선스", "미국법인(GAME ROUND) 송금", "기타 운영비", "법인세·부가세 납부"]
+CATS_IN = ["매출 입금", "정부지원금 입금", "투자금 입금", "이자·기타 입금"]
+PERIODS = ["매월", "분기", "반기", "연", "1회"]
+N_OUT, N_IN = 40, 25          # 원자료 행 수
+LG_FIRST = 5                  # 원자료 데이터 시작 행 (4행 헤더)
 
-def put(ws, addr, v, font=F, fill=None, fmt=None, align=None):
+# 전개표 열: A 구분 B 항목 C 확정 D 금액(원) E 시작idx F 종료idx G 주기개월, 월은 H부터
+EX_FIRST = 8
+EX_LAST = EX_FIRST + MONTHS - 1
+# 월별현금흐름 열: A 항목 B 건수, 월은 C부터
+CF_FIRST = 3
+CF_LAST = CF_FIRST + MONTHS - 1
+
+EXAMPLE_OUT = [
+    ("급여(실지급)", "급여 실지급 총액(급여대장)", 62_000_000, "KRW", "매월", date(2026, 11, 1), None, "확정", "급여대장 2026-10 기준"),
+    ("4대보험·원천세 납부", "4대보험·원천세 총액", 23_000_000, "KRW", "매월", date(2026, 11, 1), None, "확정", "급여대장 2026-10 기준"),
+    ("급여(실지급)", "신규 채용 1명(개발)", 4_000_000, "KRW", "매월", date(2027, 3, 1), None, "예정", "채용 확정 시 확정으로 변경"),
+    ("임차료·관리비", "신사 사무실 월세·관리비", 12_000_000, "KRW", "매월", date(2026, 11, 1), date(2027, 10, 1), "확정", "임대차계약 만료 2027-10"),
+    ("외주·용역비", "세무기장", 500_000, "KRW", "매월", date(2026, 11, 1), None, "확정", ""),
+    ("외주·용역비", "외부 QA 용역", 9_000_000, "KRW", "1회", date(2027, 1, 1), None, "예정", "견적 수령"),
+    ("서버·SaaS·라이선스", "AWS", 4_500_000, "KRW", "매월", date(2026, 11, 1), None, "확정", ""),
+    ("서버·SaaS·라이선스", "개발툴 연간 라이선스", 6_000_000, "KRW", "연", date(2027, 3, 1), None, "확정", "매년 3월 갱신"),
+    ("미국법인(GAME ROUND) 송금", "운영비 송금", 8_000, "USD", "매월", date(2026, 11, 1), None, "확정", "USD, 환율은 입력!B9"),
+    ("기타 운영비", "복리후생·소모품", 3_000_000, "KRW", "매월", date(2026, 11, 1), None, "확정", ""),
+    ("기타 운영비", "단체보험 연납", 2_400_000, "KRW", "연", date(2027, 4, 1), None, "확정", ""),
+    ("법인세·부가세 납부", "부가세(분기)", 15_000_000, "KRW", "분기", date(2027, 1, 1), None, "확정", "1·4·7·10월"),
+    ("법인세·부가세 납부", "법인세", 10_000_000, "KRW", "연", date(2027, 3, 1), None, "예정", "결산 후 확정"),
+]
+EXAMPLE_IN = [
+    ("매출 입금", "퍼블리싱 정산", 45_000_000, "KRW", "매월", date(2026, 11, 1), None, "확정", "계약 A"),
+    ("매출 입금", "라이선스 계약 B", 30_000_000, "KRW", "분기", date(2026, 12, 1), None, "예정", "협상 중"),
+    ("정부지원금 입금", "OO지원사업 2차 지급", 60_000_000, "KRW", "1회", date(2027, 2, 1), None, "확정", "협약서"),
+    ("정부지원금 입금", "OO지원사업 잔금", 20_000_000, "KRW", "1회", date(2027, 8, 1), None, "예정", "최종평가 후"),
+    ("투자금 입금", "브릿지 라운드", 500_000_000, "KRW", "1회", date(2027, 4, 1), None, "예정", "텀시트 전"),
+    ("이자·기타 입금", "예금이자", 500_000, "KRW", "매월", date(2026, 11, 1), None, "확정", ""),
+]
+
+
+def put(ws, addr, v, font=F, fill=None, fmt=None, align=None, border=None):
     c = ws[addr]
     c.value = v
     c.font = font
@@ -46,261 +96,349 @@ def put(ws, addr, v, font=F, fill=None, fmt=None, align=None):
         c.number_format = fmt
     if align:
         c.alignment = Alignment(horizontal=align)
+    if border:
+        c.border = border
     return c
 
 
-def build(path="runway_template.xlsx"):
+def set_title(ch, text):
+    cp = CharacterProperties(sz=1100, b=True, solidFill=C_INK, latin=DFont(typeface=FONT), ea=DFont(typeface=FONT))
+    para = Paragraph(pPr=ParagraphProperties(defRPr=cp), r=[RegularTextRun(rPr=cp, t=text)])
+    ch.title = Title(tx=Text(rich=RichText(p=[para])), overlay=False)
+
+
+def style_axes(ch):
+    ch.x_axis.delete = False
+    ch.y_axis.delete = False
+    ch.x_axis.number_format = "yy-mm"
+    ch.x_axis.majorTickMark = "none"
+    ch.y_axis.number_format = "#,##0,,"
+    ch.y_axis.majorGridlines.spPr = GraphicalProperties(ln=LineProperties(solidFill=C_GRID, w=6350))
+    ch.x_axis.spPr = GraphicalProperties(ln=LineProperties(solidFill=C_GRID, w=6350))
+    ch.y_axis.spPr = GraphicalProperties(ln=LineProperties(noFill=True))
+    ch.legend = None
+
+
+# ───────────────────────── 원자료 ─────────────────────────
+def ledger_sheet(wb, name, cats, n_rows, rows_example, note):
+    ws = wb.create_sheet(name)
+    put(ws, "A1", name.replace("_", " "), FH)
+    put(ws, "A2", note, FNOTE)
+    hdr = ["구분", "항목", "금액(1회분)", "통화", "주기", "시작월", "종료월", "확정", "메모·근거"]
+    widths = [24, 30, 16, 8, 8, 12, 12, 8, 36]
+    for i, (h, w) in enumerate(zip(hdr, widths), start=1):
+        put(ws, f"{L(i)}4", h, FB, GRAY, align="center", border=BOX)
+        ws.column_dimensions[L(i)].width = w
+    last = LG_FIRST + n_rows - 1
+    for r in range(LG_FIRST, last + 1):
+        for i in range(1, 10):
+            c = put(ws, f"{L(i)}{r}", None, fill=YELLOW, border=BOX)
+            if i == 3:
+                c.number_format = NUM
+            if i in (6, 7):
+                c.number_format = "yyyy-mm"
+    # 드롭다운
+    def dv(formula, cols):
+        d = DataValidation(type="list", formula1=formula, allow_blank=True)
+        ws.add_data_validation(d)
+        for col in cols:
+            d.add(f"{col}{LG_FIRST}:{col}{last}")
+    dv('"' + ",".join(cats) + '"', ["A"])
+    dv('"KRW,USD"', ["D"])
+    dv('"' + ",".join(PERIODS) + '"', ["E"])
+    dv('"확정,예정"', ["H"])
+    for r, row in enumerate(rows_example, start=LG_FIRST):
+        for i, v in enumerate(row, start=1):
+            ws[f"{L(i)}{r}"].value = v
+    ws.freeze_panes = "A5"
+    return last
+
+
+# ───────────────────────── 전개표 ─────────────────────────
+def expand_block(ws, title, src, src_last, start_row):
+    """원자료 src의 각 줄을 18개월로 전개. 반환: (첫 데이터행, 마지막 데이터행, 다음 행)"""
+    r = start_row
+    put(ws, f"A{r}", title, FB, BLUE)
+    for j in range(1, EX_LAST + 1):
+        ws.cell(row=r, column=j).fill = BLUE
+    r += 1
+    hdr_row = r
+    for i, h in enumerate(["구분", "항목", "확정", "금액(원)", "시작idx", "종료idx", "주기(월)"], start=1):
+        put(ws, f"{L(i)}{r}", h, FB, GRAY, align="center")
+    for j in range(MONTHS):
+        col = L(EX_FIRST + j)
+        put(ws, f"{col}{r}", f"=월별현금흐름!{L(CF_FIRST + j)}$4", FB, GRAY, "yy-mm", "center")
+    r += 1
+    idx_row = r
+    put(ws, f"A{r}", "월 idx(연×12+월)", FNOTE)
+    for j in range(MONTHS):
+        col = L(EX_FIRST + j)
+        put(ws, f"{col}{r}", f"=YEAR({col}{hdr_row})*12+MONTH({col}{hdr_row})", FNOTE, fmt="0")
+    r += 1
+    first = r
+    for k, sr in enumerate(range(LG_FIRST, src_last + 1)):
+        rr = first + k
+        S = f"{src}!"
+        put(ws, f"A{rr}", f'=IF({S}A{sr}="","",{S}A{sr})')
+        put(ws, f"B{rr}", f'=IF({S}B{sr}="","",{S}B{sr})')
+        put(ws, f"C{rr}", f'=IF({S}H{sr}="","",{S}H{sr})')
+        put(ws, f"D{rr}", f'=IF({S}C{sr}="",0,IF({S}D{sr}="USD",{S}C{sr}*입력!$B$9,{S}C{sr}))', fmt="#,##0;-#,##0;")
+        put(ws, f"E{rr}", f'=IF({S}F{sr}="","",YEAR({S}F{sr})*12+MONTH({S}F{sr}))', FNOTE, fmt="0")
+        put(ws, f"F{rr}", f'=IF({S}G{sr}="",999999,YEAR({S}G{sr})*12+MONTH({S}G{sr}))', FNOTE, fmt='[=999999]"";0')
+        put(ws, f"G{rr}", f'=IF({S}E{sr}="매월",1,IF({S}E{sr}="분기",3,IF({S}E{sr}="반기",6,'
+                          f'IF({S}E{sr}="연",12,IF({S}E{sr}="1회",0,"")))))', FNOTE, fmt="0")
+        for j in range(MONTHS):
+            col = L(EX_FIRST + j)
+            m = f"{col}${idx_row}"
+            f = (f'=IF(OR($E{rr}="",$G{rr}=""),0,'
+                 f'IF(AND({m}>=$E{rr},{m}<=$F{rr},IF($G{rr}=0,{m}=$E{rr},MOD({m}-$E{rr},MAX($G{rr},1))=0)),$D{rr},0))')
+            put(ws, f"{col}{rr}", f, fmt="#,##0;[Red]-#,##0;-")
+    last = first + (src_last - LG_FIRST)
+    return first, last, last + 3
+
+
+def build(path, example=False):
     wb = Workbook()
 
-    # ───────────── 입력 ─────────────
+    # ───── 입력 ─────
     ws = wb.active
     ws.title = "입력"
     put(ws, "A1", "런웨이 시트 입력", FH)
-    put(ws, "A2", "노란 칸만 입력. 금액은 원 단위, 월별현금흐름 시트는 입금·출금 기준.", FNOTE)
+    put(ws, "A2", "노란 칸만 입력. 비용·수입 목록은 원자료_유출 / 원자료_유입 시트에.", FNOTE)
     rows = [
-        ("기준월(1일 날짜)", None, "yyyy-mm", "예: 2026-11-01. 월별현금흐름 1열의 월이 됩니다"),
-        ("기초현금(기준월 초 은행잔고 합계)", None, NUM, "법인 계좌 전체 합계. 외화는 기준월 초 환율로 환산"),
-        ("비용 시나리오 증감률", 0.10, "0%", "요약 시트의 '비용 +N%' 시나리오에 쓰는 비율"),
-        ("런웨이 계산 기준 개월수", 6, "0", "최근 N개월 평균 순소진으로 런웨이를 계산. 기본 6"),
+        ("기준월(1일 날짜)", date(2026, 11, 1) if example else None, "yyyy-mm", "월별현금흐름 첫 열의 월"),
+        ("기초현금(기준월 초 은행잔고 합계)", 1_200_000_000 if example else None, NUM, "법인 계좌 전체 합계. 외화는 기준월 초 환율로 환산"),
+        ("비용 시나리오 증감률", 0.10, "0%", "요약의 '비용 +N%' 시나리오 비율"),
+        ("런웨이 계산 기준 개월수", 6, "0", "기준월부터 N개월 평균 순소진으로 런웨이 계산"),
+        ("USD 환율(원/달러)", 1_400 if example else None, "#,##0", "원자료에서 통화가 USD인 줄의 환산에 사용"),
     ]
     put(ws, "A4", "항목", FB, GRAY); put(ws, "B4", "값", FB, GRAY); put(ws, "C4", "메모", FB, GRAY)
     for i, (k, v, fmt, memo) in enumerate(rows, start=5):
         put(ws, f"A{i}", k)
-        put(ws, f"B{i}", v, fill=YELLOW, fmt=fmt, align="right").border = BOX
+        put(ws, f"B{i}", v, fill=YELLOW, fmt=fmt, align="right", border=BOX)
         put(ws, f"C{i}", memo, FNOTE)
     ws.column_dimensions["A"].width = 34
     ws.column_dimensions["B"].width = 18
-    ws.column_dimensions["C"].width = 60
+    ws.column_dimensions["C"].width = 56
 
-    # ───────────── 월별현금흐름 ─────────────
+    # ───── 원자료 ─────
+    note_out = "한 줄에 비용 하나. 급여는 급여대장 총액 한 줄(개인별 금액은 넣지 않음). 주기: 매월·분기·반기·연은 시작월부터 반복, 1회는 시작월에만. 종료월 비우면 계속."
+    note_in = "한 줄에 수입 하나. 예정 건은 '예정'으로 두고 확정되면 바꿈. 투자금은 런웨이 계산에서 제외되고 잔액 추이에만 반영."
+    if example:
+        note_out = "[예시 데이터, 전부 가상 숫자] " + note_out
+        note_in = "[예시 데이터, 전부 가상 숫자] " + note_in
+    out_last = ledger_sheet(wb, "원자료_유출", CATS_OUT, N_OUT, EXAMPLE_OUT if example else [], note_out)
+    in_last = ledger_sheet(wb, "원자료_유입", CATS_IN, N_IN, EXAMPLE_IN if example else [], note_in)
+    out_sheet, in_sheet = wb["원자료_유출"], wb["원자료_유입"]
+
+    # ───── 월별현금흐름 (먼저 틀을 만들어 전개표가 헤더를 참조) ─────
     cf = wb.create_sheet("월별현금흐름")
     put(cf, "A1", "월별 현금흐름 (18개월)", FH)
-    put(cf, "A2", "B열 '기본값'은 매월 자동 반복. 특정 월만 다르면 그 달 셀에 금액을 직접 입력(덧씌움).", FNOTE)
+    put(cf, "A2", "전부 수식. 숫자를 고치려면 원자료 시트에서. B열은 해당 구분의 원자료 건수.", FNOTE)
     put(cf, "A4", "항목", FB, GRAY)
-    put(cf, "B4", "기본값(매월)", FB, GRAY)
-    put(cf, "A3", "월 번호", FNOTE)
+    put(cf, "B4", "원자료 건수", FB, GRAY, align="center")
     for j in range(MONTHS):
-        col = L(FIRST_COL + j)
-        put(cf, f"{col}3", j + 1, FNOTE, fmt="0", align="center")
-        if j == 0:
-            put(cf, f"{col}4", "=입력!$B$5", FB, GRAY, "yyyy-mm", "center")
-        else:
-            put(cf, f"{col}4", f"=EDATE({L(FIRST_COL + j - 1)}4,1)", FB, GRAY, "yyyy-mm", "center")
-        cf.column_dimensions[col].width = 14
+        col = L(CF_FIRST + j)
+        f = "=입력!$B$5" if j == 0 else f"=EDATE({L(CF_FIRST + j - 1)}4,1)"
+        put(cf, f"{col}4", f, FB, GRAY, "yyyy-mm", "center")
+        cf.column_dimensions[col].width = 13
+    cf.column_dimensions["A"].width = 34
+    cf.column_dimensions["B"].width = 11
 
-    # 행 레이아웃
+    # ───── 전개표 ─────
+    ex = wb.create_sheet("전개표")
+    put(ex, "A1", "전개표 (자동)", FH)
+    put(ex, "A2", "원자료 각 줄을 월별로 펼친 검산용 시트. 손대지 않음. 어느 항목이 어느 달에 얼마 잡혔는지 확인할 때 봄.", FNOTE)
+    o_first, o_last, nxt = expand_block(ex, "유출", "원자료_유출", out_last, 4)
+    i_first, i_last, _ = expand_block(ex, "유입", "원자료_유입", in_last, nxt)
+    for col, w in zip("ABCDEFG", [24, 28, 6, 14, 9, 9, 8]):
+        ex.column_dimensions[col].width = w
+    for j in range(MONTHS):
+        ex.column_dimensions[L(EX_FIRST + j)].width = 12
+    ex.freeze_panes = "H7"
+
+    def sumifs(block_first, block_last, excol, cat_cell=None, cat_lit=None, status=None):
+        rng = f"전개표!{excol}${block_first}:{excol}${block_last}"
+        crit = []
+        if cat_cell:
+            crit.append(f"전개표!$A${block_first}:$A${block_last},{cat_cell}")
+        if cat_lit:
+            crit.append(f'전개표!$A${block_first}:$A${block_last},"{cat_lit}"')
+        if status:
+            crit.append(f'전개표!$C${block_first}:$C${block_last},"{status}"')
+        return f"=SUMIFS({rng},{','.join(crit)})"
+
+    # ───── 월별현금흐름 본문 ─────
     r = 5
     put(cf, f"A{r}", "기초현금", FB)
     row_begin = r
-    for j in range(MONTHS):
-        col = L(FIRST_COL + j)
-        f = "=입력!$B$6" if j == 0 else f"={L(FIRST_COL + j - 1)}{{END}}"  # END는 아래에서 치환
-        put(cf, f"{col}{r}", f, fmt=NUM)
 
-    def block(title, items, start_row):
-        """소제목 + 입력 항목들 + 소계. 반환: (소계 행, 다음 행)"""
+    def block(title, cats, src_name, b_first, b_last, start_row):
         rr = start_row
         put(cf, f"A{rr}", title, FB, BLUE)
-        for j in range(FIRST_COL - 1, LAST_COL + 1):
+        for j in range(1, CF_LAST + 1):
             cf.cell(row=rr, column=j).fill = BLUE
         rr += 1
         first_item = rr
-        for name in items:
-            put(cf, f"A{rr}", name)
-            put(cf, f"B{rr}", None, fill=YELLOW, fmt=NUM).border = BOX
+        for cat in cats:
+            put(cf, f"A{rr}", cat)
+            put(cf, f"B{rr}", f"=COUNTIF({src_name}!$A${LG_FIRST}:$A${LG_FIRST + 60},$A{rr})", FNOTE, fmt="0", align="center")
             for j in range(MONTHS):
-                col = L(FIRST_COL + j)
-                put(cf, f"{col}{rr}", f"=$B{rr}", fmt=NUM)
+                col = L(CF_FIRST + j)
+                excol = L(EX_FIRST + j)
+                put(cf, f"{col}{rr}", sumifs(b_first, b_last, excol, cat_cell=f"$A{rr}"), fmt=NUM)
             rr += 1
         last_item = rr - 1
         put(cf, f"A{rr}", f"{title} 합계", FB)
         for j in range(MONTHS):
-            col = L(FIRST_COL + j)
+            col = L(CF_FIRST + j)
             put(cf, f"{col}{rr}", f"=SUM({col}{first_item}:{col}{last_item})", FB, fmt=NUM)
         return rr, rr + 2
 
-    inflow_items = ["매출 입금", "정부지원금 입금", "투자금 입금", "이자·기타 입금"]
-    outflow_items = ["급여(실지급)", "4대보험·원천세 납부", "임차료·관리비", "외주·용역비",
-                     "서버·SaaS·라이선스", "미국법인(GAME ROUND) 송금", "기타 운영비", "법인세·부가세 납부"]
-    in_total, r = block("현금 유입", inflow_items, row_begin + 2)
-    out_total, r = block("현금 유출", outflow_items, r)
+    in_total, r = block("현금 유입", CATS_IN, "원자료_유입", i_first, i_last, row_begin + 2)
+    out_total, r = block("현금 유출", CATS_OUT, "원자료_유출", o_first, o_last, r)
+    inv_row = in_total - 2  # 투자금 입금 행
 
     put(cf, f"A{r}", "순현금흐름", FB)
     net_row = r
     for j in range(MONTHS):
-        col = L(FIRST_COL + j)
+        col = L(CF_FIRST + j)
         put(cf, f"{col}{r}", f"={col}{in_total}-{col}{out_total}", FB, fmt=NUM)
     r += 1
-    inv_row = in_total - 2  # '투자금 입금' 행 (유입 항목 3번째)
     put(cf, f"A{r}", "순현금흐름(투자금 제외, 런웨이 계산용)", FB)
     op_net_row = r
     for j in range(MONTHS):
-        col = L(FIRST_COL + j)
+        col = L(CF_FIRST + j)
         put(cf, f"{col}{r}", f"={col}{net_row}-{col}{inv_row}", FB, fmt=NUM)
+    r += 1
+    put(cf, f"A{r}", "보수적 순현금흐름(확정 유입만, 투자금 제외)", FB)
+    cons_row = r
+    for j in range(MONTHS):
+        col = L(CF_FIRST + j)
+        excol = L(EX_FIRST + j)
+        conf_in = sumifs(i_first, i_last, excol, status="확정")[1:]
+        conf_inv = sumifs(i_first, i_last, excol, cat_lit="투자금 입금", status="확정")[1:]
+        put(cf, f"{col}{r}", f"={conf_in}-{conf_inv}-{col}{out_total}", FB, fmt=NUM)
     r += 1
     put(cf, f"A{r}", "기말현금", FB)
     end_row = r
     for j in range(MONTHS):
-        col = L(FIRST_COL + j)
+        col = L(CF_FIRST + j)
         put(cf, f"{col}{r}", f"={col}{row_begin}+{col}{net_row}", FB, GRAY, NUM)
+    for j in range(MONTHS):  # 기초현금 (기말 행 확정 후)
+        col = L(CF_FIRST + j)
+        f = "=입력!$B$6" if j == 0 else f"={L(CF_FIRST + j - 1)}{end_row}"
+        put(cf, f"{col}{row_begin}", f, fmt=NUM)
     r += 1
     put(cf, f"A{r}", "현금 소진 플래그(기말<0)", FNOTE)
     flag_row = r
     for j in range(MONTHS):
-        col = L(FIRST_COL + j)
+        col = L(CF_FIRST + j)
         put(cf, f"{col}{r}", f"=IF({col}{end_row}<0,1,0)", FNOTE, fmt="0")
     r += 1
     put(cf, f"A{r}", "런웨이 계산 포함(1=포함)", FNOTE)
     incl_row = r
     for j in range(MONTHS):
-        col = L(FIRST_COL + j)
-        put(cf, f"{col}{r}", f"=IF({col}3<=입력!$B$8,1,0)", FNOTE, fmt="0")
-
-    # 기초현금 수식의 END 치환
-    for j in range(1, MONTHS):
-        col = L(FIRST_COL + j)
-        cf[f"{col}{row_begin}"].value = cf[f"{col}{row_begin}"].value.replace("{END}", str(end_row))
-
-    cf.column_dimensions["A"].width = 30
-    cf.column_dimensions["B"].width = 16
+        col = L(CF_FIRST + j)
+        put(cf, f"{col}{r}", f"=IF({j + 1}<=입력!$B$8,1,0)", FNOTE, fmt="0")
     cf.freeze_panes = "C5"
 
-    # ───────────── 요약 ─────────────
+    # ───── 요약 ─────
     sm = wb.create_sheet("요약")
-    rng_net = f"월별현금흐름!{C0}{op_net_row}:{C1}{op_net_row}"
-    rng_inv = f"월별현금흐름!{C0}{inv_row}:{C1}{inv_row}"
-    rng_end = f"월별현금흐름!{C0}{end_row}:{C1}{end_row}"
-    rng_flag = f"월별현금흐름!{C0}{flag_row}:{C1}{flag_row}"
-    rng_mon = f"월별현금흐름!{C0}4:{C1}4"
-    rng_incl = f"월별현금흐름!{C0}{incl_row}:{C1}{incl_row}"
-    rng_out = f"월별현금흐름!{C0}{out_total}:{C1}{out_total}"
-    rng_in = f"월별현금흐름!{C0}{in_total}:{C1}{in_total}"
+    C0, C1 = L(CF_FIRST), L(CF_LAST)
+    rng = lambda row: f"월별현금흐름!{C0}{row}:{C1}{row}"
     n = "입력!$B$8"
-
     put(sm, "A1", "런웨이 요약", FH)
-    put(sm, "A2", "전부 수식. 입력·월별현금흐름 시트만 고치면 자동 갱신.", FNOTE)
+    put(sm, "A2", "전부 수식. 입력·원자료 시트만 고치면 자동 갱신.", FNOTE)
     put(sm, "A4", "항목", FB, GRAY); put(sm, "B4", "값", FB, GRAY); put(sm, "C4", "계산", FB, GRAY)
     items = [
         ("기초현금", "=입력!B6", NUM, "입력!B6"),
-        ("향후 N개월 평균 순소진(투자금 제외)", f"=SUMPRODUCT({rng_incl},{rng_net})/{n}", NUM,
-         "기준월부터 N개월(입력!B8) 평균. 투자금 입금은 제외, 매출·지원금은 포함"),
-        ("런웨이(개월)", "=IF(B6<0,B5/ABS(B6),\"영업 흑자(소진 없음)\")", "0.0",
-         "기초현금 ÷ |평균 순소진|. 예정 투자금은 반영하지 않은 보수적 값"),
-        ("현금 소진 예상월", f"=IFERROR(INDEX({rng_mon},MATCH(1,{rng_flag},0)),\"18개월 내 없음\")", "yyyy-mm",
-         "기말현금이 처음 0 미만이 되는 월"),
-        ("18개월 내 최저 기말현금", f"=MIN({rng_end})", NUM, ""),
-        ("최저 기말현금 월", f"=INDEX({rng_mon},MATCH(B9,{rng_end},0))", "yyyy-mm", ""),
-        ("18개월 유입 합계", f"=SUM({rng_in})", NUM, ""),
-        ("18개월 유출 합계", f"=SUM({rng_out})", NUM, ""),
+        ("향후 N개월 평균 순소진(투자금 제외)", f"=SUMPRODUCT({rng(incl_row)},{rng(op_net_row)})/{n}", NUM,
+         "기준월부터 N개월(입력!B8) 평균. 확정+예정 전부, 투자금만 제외"),
+        ("런웨이(개월)", '=IF(B6<0,B5/ABS(B6),"영업 흑자(소진 없음)")', "0.0", "기초현금 ÷ |평균 순소진|"),
+        ("현금 소진 예상월", f'=IFERROR(INDEX({rng(4)},MATCH(1,{rng(flag_row)},0)),"18개월 내 없음")', "yyyy-mm",
+         "기말현금이 처음 0 미만이 되는 월(확정+예정 전부 반영)"),
+        ("18개월 내 최저 기말현금", f"=MIN({rng(end_row)})", NUM, ""),
+        ("최저 기말현금 월", f"=INDEX({rng(4)},MATCH(B9,{rng(end_row)},0))", "yyyy-mm", ""),
+        ("보수적 평균 순소진(확정 유입만)", f"=SUMPRODUCT({rng(incl_row)},{rng(cons_row)})/{n}", NUM,
+         "유입은 '확정'만, 유출은 확정+예정 전부, 투자금 제외"),
+        ("보수적 런웨이(개월)", '=IF(B11<0,B5/ABS(B11),"영업 흑자(소진 없음)")', "0.0", "예정 매출·지원금이 안 들어올 때"),
+        ("18개월 유입 합계", f"=SUM({rng(in_total)})", NUM, ""),
+        ("18개월 유출 합계", f"=SUM({rng(out_total)})", NUM, ""),
     ]
     for i, (k, f, fmt, memo) in enumerate(items, start=5):
         put(sm, f"A{i}", k)
         put(sm, f"B{i}", f, FB, fmt=fmt, align="right")
         put(sm, f"C{i}", memo, FNOTE)
-
-    put(sm, "A14", "시나리오: 비용 증감", FB, BLUE)
+    put(sm, "A16", "시나리오: 비용 증감", FB, BLUE)
     for j in range(1, 4):
-        sm.cell(row=14, column=j).fill = BLUE
-    put(sm, "A15", "비용 증감률")
-    put(sm, "B15", "=입력!B7", FB, fmt="+0%;-0%", align="right")
-    put(sm, "C15", "입력!B7", FNOTE)
-    put(sm, "A16", "시나리오 평균 순현금흐름")
-    put(sm, "B16", f"=(SUMPRODUCT({rng_incl},{rng_in})-SUMPRODUCT({rng_incl},{rng_inv})"
-                   f"-SUMPRODUCT({rng_incl},{rng_out})*(1+B15))/{n}",
-        FB, fmt=NUM, align="right")
-    put(sm, "C16", "(유입 − 투자금) 평균 − 유출 평균 × (1+증감률)", FNOTE)
-    put(sm, "A17", "시나리오 런웨이(개월)")
-    put(sm, "B17", "=IF(B16<0,B5/ABS(B16),\"영업 흑자(소진 없음)\")", FB, fmt="0.0", align="right")
-    put(sm, "A18", "런웨이 변화(개월)")
-    put(sm, "B18", "=IF(AND(ISNUMBER(B7),ISNUMBER(B17)),B17-B7,\"-\")", FB, fmt="+0.0;-0.0", align="right")
-
-    sm.column_dimensions["A"].width = 30
+        sm.cell(row=16, column=j).fill = BLUE
+    put(sm, "A17", "비용 증감률"); put(sm, "B17", "=입력!B7", FB, fmt="+0%;-0%", align="right"); put(sm, "C17", "입력!B7", FNOTE)
+    put(sm, "A18", "시나리오 평균 순소진")
+    put(sm, "B18", f"=(SUMPRODUCT({rng(incl_row)},{rng(in_total)})-SUMPRODUCT({rng(incl_row)},{rng(inv_row)})"
+                   f"-SUMPRODUCT({rng(incl_row)},{rng(out_total)})*(1+B17))/{n}", FB, fmt=NUM, align="right")
+    put(sm, "C18", "(유입 − 투자금) 평균 − 유출 평균 × (1+증감률)", FNOTE)
+    put(sm, "A19", "시나리오 런웨이(개월)")
+    put(sm, "B19", '=IF(B18<0,B5/ABS(B18),"영업 흑자(소진 없음)")', FB, fmt="0.0", align="right")
+    put(sm, "A20", "런웨이 변화(개월)")
+    put(sm, "B20", '=IF(AND(ISNUMBER(B7),ISNUMBER(B19)),B19-B7,"-")', FB, fmt="+0.0;-0.0", align="right")
+    sm.column_dimensions["A"].width = 36
     sm.column_dimensions["B"].width = 20
-    sm.column_dimensions["C"].width = 44
+    sm.column_dimensions["C"].width = 50
 
-
-    # ───────────── 보고 (대표님·이사님 공유용) ─────────────
+    # ───── 보고 ─────
     rp = wb.create_sheet("보고")
     rp.sheet_view.showGridLines = False
-    for col, w in zip("ABCDEFGHIJKLMN", [2, 24, 3, 24, 3, 24, 3, 24, 2, 2, 2, 2, 2, 2]):
+    for col, w in zip("ABCDEFGHI", [2, 24, 3, 24, 3, 24, 3, 24, 2]):
         rp.column_dimensions[col].width = w
     rp.row_dimensions[2].height = 30
     put(rp, "B2", "현금 런웨이 보고", Font(name=FONT, size=18, bold=True, color=C_INK))
-    put(rp, "B3", '="기준월 "&YEAR(입력!B5)&"-"&RIGHT("0"&MONTH(入력!B5),2)&" · 입금·출금 기준 · 단위: 원"'.replace("入력", "입력"),
-        Font(name=FONT, size=10, color=C_MUTED))
-
-    # 헤드라인 숫자 4개 (stat tile): 라벨은 보조 잉크, 숫자는 굵게 크게
+    put(rp, "B3", '="기준월 "&YEAR(입력!B5)&"-"&RIGHT("0"&MONTH(입력!B5),2)&" · 기초현금 "&TEXT(입력!B6/1000000,"#,##0")'
+                  '&"백만원 · 입금·출금 기준"', Font(name=FONT, size=10, color=C_MUTED))
+    mon = lambda ref: f'IF(ISNUMBER({ref}),YEAR({ref})&"-"&RIGHT("0"&MONTH({ref}),2),{ref})'
+    mo = lambda ref: f'IF(ISNUMBER({ref}),TEXT({ref},"0.0")&"개월",{ref})'
     tiles = [
-        ("B", "런웨이", '=IF(ISNUMBER(요약!B7),TEXT(요약!B7,"0.0")&"개월",요약!B7)', None),
-        ("D", "현금 소진 예상월", '=IF(ISNUMBER(요약!B8),YEAR(요약!B8)&"-"&RIGHT("0"&MONTH(요약!B8),2),요약!B8)', None),
-        ("F", "기초현금 (백만원)", "=요약!B5", '#,##0,,'),
-        ("H", "18개월 내 최저 잔액 (백만원)", "=요약!B9", '#,##0,,;[Red]-#,##0,,'),
+        ("B", "런웨이 (확정+예정)", f"={mo('요약!B7')}", None),
+        ("D", "보수적 런웨이 (확정 유입만)", f"={mo('요약!B12')}", None),
+        ("F", "현금 소진 예상월", f"={mon('요약!B8')}", None),
+        ("H", "18개월 내 최저 잔액 (백만원)", "=요약!B9", "#,##0,,;[Red]-#,##0,,"),
     ]
     rp.row_dimensions[5].height = 18
     rp.row_dimensions[6].height = 34
     for col, label, f, fmt in tiles:
         put(rp, f"{col}5", label, Font(name=FONT, size=10, color=C_INK2))
-        c = put(rp, f"{col}6", f, Font(name=FONT, size=20, bold=True, color=C_INK), fmt=fmt, align="left")
-        for r_ in (5, 6):
-            rp[f"{col}{r_}"].border = Border(bottom=Side(style="thin", color=C_GRID)) if r_ == 6 else Border()
-    put(rp, "B7", '="비용 "&IF(요약!B15>=0,"+","")&TEXT(요약!B15,"0%")&" 시 런웨이 "'
-                  '&IF(ISNUMBER(요약!B17),TEXT(요약!B17,"0.0")&"개월",요약!B17)'
-                  '&IF(ISNUMBER(요약!B18)," ("&IF(요약!B18>=0,"+","")&TEXT(요약!B18,"0.0")&"개월)","")',
+        put(rp, f"{col}6", f, Font(name=FONT, size=20, bold=True, color=C_INK), fmt=fmt, align="left",
+            border=Border(bottom=Side(style="thin", color=C_GRID)))
+    put(rp, "B7", '="비용 "&IF(요약!B17>=0,"+","")&TEXT(요약!B17,"0%")&" 시 런웨이 "&' + mo("요약!B19") +
+                  '&IF(ISNUMBER(요약!B20)," ("&IF(요약!B20>=0,"+","")&TEXT(요약!B20,"0.0")&"개월)","")',
         Font(name=FONT, size=10, color=C_INK2))
-
-    # 보고 문구 (카톡·Slack 첫 줄용)
     put(rp, "B9", "보고 문구", Font(name=FONT, size=10, color=C_INK2))
-    put(rp, "B10", '="런웨이 "&IF(ISNUMBER(요약!B7),TEXT(요약!B7,"0.0")&"개월",요약!B7)&", 현금 소진 예상 "'
-                   '&IF(ISNUMBER(요약!B8),YEAR(요약!B8)&"-"&RIGHT("0"&MONTH(요약!B8),2),요약!B8)'
-                   '&". 기초현금 "&TEXT(요약!B5/1000000,"#,##0")&"백만원, 월평균 순소진 "'
-                   '&TEXT(ABS(요약!B6)/1000000,"#,##0")&"백만원."',
+    put(rp, "B10", '="런웨이 "&' + mo("요약!B7") + '&", 예정 수입 제외 시 "&' + mo("요약!B12") +
+                   '&". 현금 소진 예상 "&' + mon("요약!B8") +
+                   '&". 월평균 순소진 "&TEXT(ABS(요약!B6)/1000000,"#,##0")&"백만원."',
         Font(name=FONT, size=11, color=C_INK))
     rp.merge_cells("B10:H10")
     rp["B10"].alignment = Alignment(wrap_text=True, vertical="top")
     rp.row_dimensions[10].height = 34
 
-    cats = Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=4)  # 월(날짜)
-    cf_sheet_cols = (FIRST_COL, LAST_COL)
-
-    def set_title(ch, text):
-        from openpyxl.chart.title import Title
-        from openpyxl.chart.text import RichText, Text
-        from openpyxl.drawing.text import Paragraph, ParagraphProperties, CharacterProperties, RegularTextRun, Font as DFont
-        cp = CharacterProperties(sz=1100, b=True, solidFill=C_INK, latin=DFont(typeface=FONT), ea=DFont(typeface=FONT))
-        para = Paragraph(pPr=ParagraphProperties(defRPr=cp), r=[RegularTextRun(rPr=cp, t=text)])
-        ch.title = Title(tx=Text(rich=RichText(p=[para])), overlay=False)
-
-    def style_axes(ch, y_title):
-        ch.x_axis.delete = False
-        ch.y_axis.delete = False
-        ch.x_axis.number_format = "yy-mm"
-        ch.x_axis.majorTickMark = "none"
-        ch.y_axis.number_format = '#,##0,,'       # 백만원 단위 표시
-        ch.y_axis.title = y_title
-        ch.y_axis.majorGridlines.spPr = GraphicalProperties(ln=LineProperties(solidFill=C_GRID, w=6350))
-        ch.x_axis.spPr = GraphicalProperties(ln=LineProperties(solidFill=C_GRID, w=6350))
-        ch.y_axis.spPr = GraphicalProperties(ln=LineProperties(noFill=True))
-        ch.legend = None
-
-    # 차트 1: 기말현금 추이 (단일 시리즈 선, 범례 없음, 2.25pt 선)
+    cats = Reference(cf, min_col=CF_FIRST, max_col=CF_LAST, min_row=4)
     ln = LineChart()
     set_title(ln, "기말현금 추이 (백만원)")
     ln.style = 2
     ln.height, ln.width = 7.2, 19.5
-    ln.add_data(Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=end_row), from_rows=True, titles_from_data=False)
+    ln.add_data(Reference(cf, min_col=CF_FIRST, max_col=CF_LAST, min_row=end_row), from_rows=True, titles_from_data=False)
     ln.set_categories(cats)
     s1 = ln.series[0]
     s1.graphicalProperties.line.solidFill = C_BLUE
-    s1.graphicalProperties.line.width = 28575  # 2.25pt
+    s1.graphicalProperties.line.width = 28575
     s1.marker.symbol = "circle"
     s1.marker.size = 5
     s1.marker.graphicalProperties = GraphicalProperties(solidFill=C_BLUE)
     s1.marker.graphicalProperties.line.solidFill = "FFFFFF"
     s1.smooth = False
-    style_axes(ln, None)
+    style_axes(ln)
     rp.add_chart(ln, "B12")
 
-    # 차트 2: 월별 유입 vs 유출 (2 시리즈 묶은 막대, 범례 있음)
     bar = BarChart()
     bar.type = "col"
     bar.grouping = "clustered"
@@ -309,23 +447,20 @@ def build(path="runway_template.xlsx"):
     bar.height, bar.width = 7.2, 19.5
     bar.gapWidth = 80
     bar.overlap = -10
-    bar.add_data(Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=in_total), from_rows=True, titles_from_data=False)
-    bar.add_data(Reference(cf, min_col=FIRST_COL, max_col=LAST_COL, min_row=out_total), from_rows=True, titles_from_data=False)
+    bar.add_data(Reference(cf, min_col=CF_FIRST, max_col=CF_LAST, min_row=in_total), from_rows=True, titles_from_data=False)
+    bar.add_data(Reference(cf, min_col=CF_FIRST, max_col=CF_LAST, min_row=out_total), from_rows=True, titles_from_data=False)
     bar.set_categories(cats)
-    from openpyxl.chart.series import SeriesLabel
-    from openpyxl.chart.data_source import StrRef
     bar.series[0].tx = SeriesLabel(v="유입")
     bar.series[1].tx = SeriesLabel(v="유출")
     for sr, color in zip(bar.series, (C_BLUE, C_ORANGE)):
         sr.graphicalProperties.solidFill = color
         sr.graphicalProperties.line.noFill = True
-    style_axes(bar, None)
-    bar.legend = __import__("openpyxl.chart.legend", fromlist=["Legend"]).Legend()
+    style_axes(bar)
+    bar.legend = Legend()
     bar.legend.position = "t"
     rp.add_chart(bar, "B27")
-
-    put(rp, "B42", "읽는 법: 런웨이는 투자금 입금을 뺀 영업 순소진 기준의 보수적 값. 기말현금 추이에는 예정 투자금이 반영됨.",
-        Font(name=FONT, size=9, color=C_MUTED))
+    put(rp, "B42", "읽는 법: 런웨이는 투자금을 뺀 영업 순소진 기준. 보수적 런웨이는 '예정' 표시된 매출·지원금도 뺀 값. "
+                   "기말현금 추이에는 예정 투자금이 반영됨.", Font(name=FONT, size=9, color=C_MUTED))
     rp.print_area = "A1:I43"
     rp.page_setup.orientation = "landscape"
     rp.page_setup.paperSize = rp.PAPERSIZE_A4
@@ -333,14 +468,25 @@ def build(path="runway_template.xlsx"):
     rp.page_setup.fitToWidth = 1
     rp.page_setup.fitToHeight = 1
     rp.print_options.horizontalCentered = True
-    wb.move_sheet("보고", offset=-3)  # 첫 탭으로
 
+    # 나머지 시트 인쇄 설정: 가로, 폭 1페이지
+    for sh in (ws, out_sheet, in_sheet, ex, cf, sm):
+        sh.page_setup.orientation = "landscape"
+        sh.page_setup.paperSize = sh.PAPERSIZE_A4
+        sh.sheet_properties.pageSetUpPr.fitToPage = True
+        sh.page_setup.fitToWidth = 1
+        sh.page_setup.fitToHeight = 0
+    wb.move_sheet("보고", offset=-6)
     wb.save(path)
-    layout = dict(row_begin=row_begin, in_total=in_total, out_total=out_total,
-                  net_row=net_row, op_net_row=op_net_row, end_row=end_row, flag_row=flag_row, incl_row=incl_row)
+    layout = dict(row_begin=row_begin, in_total=in_total, out_total=out_total, inv_row=inv_row, net_row=net_row,
+                  op_net_row=op_net_row, cons_row=cons_row, end_row=end_row, flag_row=flag_row, incl_row=incl_row,
+                  ex_out=(o_first, o_last), ex_in=(i_first, i_last))
     print("saved", path, layout)
     return layout
 
 
 if __name__ == "__main__":
-    build()
+    if "--example" in sys.argv:
+        build("runway_example.xlsx", example=True)
+    else:
+        build("runway_template.xlsx", example=False)
