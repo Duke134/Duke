@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "kordoc": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "kordoc", "mcp"],
+      "env": {
+        "KORDOC_ROOT": "${CLAUDE_PROJECT_DIR:-.}"
+      }
+    },
+    "anymd": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@sylphx/anymd", "--allow-dir=${CLAUDE_PROJECT_DIR:-.}"]
+    }
+  }
+}

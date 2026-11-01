@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "ppt-master": {
+      "source": { "source": "github", "repo": "hugohe3/ppt-master" }
+    },
+    "kordoc": {
+      "source": { "source": "github", "repo": "chrisryugj/kordoc" }
+    }
+  },
+  "enabledPlugins": {
+    "ppt-master@ppt-master": true
+  },
+  "enabledMcpjsonServers": ["kordoc", "anymd"]
+}
