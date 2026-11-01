@@ -157,11 +157,31 @@ def structural_checks(wb, cf_rows, ex_blocks, rep):
         check_col_pattern(ex, EX_FIRST, first, last, rep, f"{name} 첫 월")
     for sheet in ("요약", "보고"):
         ws = wb[sheet]
-        for row in ws.iter_rows(min_row=1, max_row=60):
+        for row in ws.iter_rows(min_row=1, max_row=80):
             for cell in row:
                 v = cell.value
                 if isinstance(v, (int, float)) and not isinstance(v, bool):
                     rep.struct.append(f"{sheet}!{cell.coordinate}: 손으로 친 숫자 ({v!r})")
+    sc = wb["시나리오"]
+    for r in range(13, 21):
+        for col in "BCD":
+            if not is_formula(sc[f"{col}{r}"].value):
+                rep.struct.append(f"시나리오!{col}{r} (결과표): 수식이 아님 ({sc[f'{col}{r}'].value!r})")
+    r = 24
+    while r < 80:
+        v = sc[f"A{r}"].value
+        if is_formula(v) and "시나리오" in v:  # 블록 제목
+            for k in range(1, 8):
+                lb = f"시나리오 {sc[f'A{r + k}'].value}"
+                if k == 5:  # 기말현금: 첫 달은 기초현금 참조라 둘째 달부터 패턴 검사
+                    check_row_pattern(sc, r + k, CF_FIRST + 1, CF_FIRST + MONTHS - 1, rep, lb, base_col=CF_FIRST + 1)
+                    if not is_formula(sc.cell(row=r + k, column=CF_FIRST).value):
+                        rep.struct.append(f"시나리오!{L(CF_FIRST)}{r + k} ({lb} 첫 달): 수식이 아님")
+                else:
+                    check_row_pattern(sc, r + k, CF_FIRST, CF_FIRST + MONTHS - 1, rep, lb)
+            r += 9
+        else:
+            r += 1
 
 
 # ───────────────────────── 4) 독립 전개 ─────────────────────────
@@ -198,7 +218,7 @@ def main():
 
     wb = load_workbook(path)
     wb_v = load_workbook(path, data_only=True)
-    for need in ("입력", "원자료_유출", "원자료_유입", "전개표", "월별현금흐름", "요약", "보고"):
+    for need in ("입력", "원자료_유출", "원자료_유입", "전개표", "월별현금흐름", "요약", "시나리오", "보고"):
         if need not in wb.sheetnames:
             print(f"❌ 시트 '{need}' 없음. make_runway.py 레이아웃이 아닙니다.")
             return 1
@@ -237,7 +257,8 @@ def main():
     # 행 위치 (라벨로 찾음)
     cf = wb["월별현금흐름"]
     labels = ["기초현금"] + CATS_IN + ["현금 유입 합계"] + CATS_OUT + ["현금 유출 합계", "순현금흐름",
-              "순현금흐름(투자금 제외, 런웨이 계산용)", "보수적 순현금흐름(확정 유입만, 투자금 제외)", "기말현금",
+              "순현금흐름(투자금 제외, 런웨이 계산용)", "확정 유입 합계", "확정 투자금 입금",
+              "보수적 순현금흐름(확정 유입만, 투자금 제외)", "기말현금",
               "현금 소진 플래그(기말<0)", "런웨이 계산 포함(1=포함)", "안전 잔액선(N개월치 평균 유출)",
               "안전선 미달 플래그(기말<안전선)"]
     cf_rows = {}
@@ -302,6 +323,7 @@ def main():
     # 4) 독립 전개 대조
     can_calc = base is not None and isinstance(cash0, (int, float)) and isinstance(n_win, (int, float)) and cf_rows and not rep.data
     f_run = f_cons = f_safe = None
+    scen_summary = []
     if can_calc:
         months = [idx(base) + i for i in range(MONTHS)]
         fxv = fx if isinstance(fx, (int, float)) else 1
@@ -318,8 +340,10 @@ def main():
         N = int(n_win)
         avg, cavg, oavg = sum(opnet[:N]) / N, sum(cons[:N]) / N, sum(outflow[:N]) / N
         safe = oavg * (safe_n or 0)
+        conf_all = series_sum(EI, lambda c, s: s == "확정")
+        conf_inv = series_sum(EI, lambda c, s: s == "확정" and c == "투자금 입금")
         exp_rows = {"현금 유입 합계": inflow, "현금 유출 합계": outflow, "순현금흐름": net,
-                    "순현금흐름(투자금 제외, 런웨이 계산용)": opnet,
+                    "순현금흐름(투자금 제외, 런웨이 계산용)": opnet, "확정 유입 합계": conf_all, "확정 투자금 입금": conf_inv,
                     "보수적 순현금흐름(확정 유입만, 투자금 제외)": cons, "기말현금": end}
         for cat in CATS_IN:
             exp_rows[cat] = series_sum(EI, lambda c, s, cat=cat: c == cat)
@@ -365,6 +389,41 @@ def main():
                 rep.calc.append(f"요약!B{row} {lb}: 시트 {got} vs 독립 {first_month(flags)}")
         f_run, f_cons, f_safe = val("요약", f"B{sm_rows['런웨이(개월)']}"), val("요약", f"B{sm_rows['보수적 런웨이(개월)']}"), val("요약", f"B{sm_rows['안전 잔액선']}")
 
+        # 시나리오 3열 독립 계산
+        sc = wb["시나리오"]
+        for pc in "BCD":
+            name = sc[f"{pc}5"].value
+            rate = sc[f"{pc}6"].value or 0
+            incl_planned = (sc[f"{pc}7"].value or "포함") == "포함"
+            extra = sc[f"{pc}8"].value or 0
+            ex_start = to_date(sc[f"{pc}9"].value)
+            adj = sc[f"{pc}10"].value or 0
+            if not all(isinstance(x, (int, float)) for x in (rate, extra, adj)):
+                rep.data.append(f"시나리오!{pc}6/8/10: 숫자가 아님"); continue
+            if sc[f"{pc}7"].value not in ("포함", "제외"):
+                rep.data.append(f"시나리오!{pc}7: '포함' 또는 '제외' ({sc[f'{pc}7'].value!r})"); continue
+            s_in = [(inflow[i] - inv[i]) if incl_planned else (conf_all[i] - conf_inv[i]) for i in range(MONTHS)]
+            s_inv = inv if incl_planned else conf_inv
+            s_out = [outflow[i] * (1 + rate) + (extra if (ex_start is None or months[i] >= idx(ex_start)) else 0) for i in range(MONTHS)]
+            s_net = [a - b for a, b in zip(s_in, s_out)]
+            s_end, c = [], cash0 + adj
+            for i in range(MONTHS):
+                c += s_net[i] + s_inv[i]; s_end.append(c)
+            s_avg = sum(s_net[:N]) / N
+            s_run = (cash0 + adj) / abs(s_avg) if s_avg < 0 else None
+            checks = {13: s_avg, 17: s_end[-1], 18: min(s_end)}
+            if s_run is not None:
+                checks[14] = s_run
+            for row, e in checks.items():
+                got = val("시나리오", f"{pc}{row}")
+                if not isinstance(got, float) or abs(got - e) > (0.01 if row == 14 else TOL):
+                    rep.calc.append(f"시나리오!{pc}{row} ({name}): 시트 {got} vs 독립 {e:,.2f}")
+            for row, flags in ((16, [x < 0 for x in s_end]), (20, [x < safe for x in s_end])):
+                got = sheet_month(val("시나리오", f"{pc}{row}"))
+                if got != first_month(flags):
+                    rep.calc.append(f"시나리오!{pc}{row} ({name}): 시트 {got} vs 독립 {first_month(flags)}")
+            scen_summary.append((name, val("시나리오", f"{pc}14"), sheet_month(val("시나리오", f"{pc}16"))))
+
     # 5) Excel 저장값 대조
     cache_note = "파일에 Excel 저장값 없음(생성 직후). 재계산값만 사용"
     if cf_rows.get("기말현금"):
@@ -388,6 +447,8 @@ def main():
         print(f"  보수적 런웨이(확정 유입만){mo(f_cons):>17}")
         print(f"  안전 잔액선              {fmt_won(f_safe):>18} 원")
         print(f"  기말현금(마지막 달)      {fmt_won(val('월별현금흐름', f'{L(CF_FIRST + MONTHS - 1)}{cf_rows['기말현금']}')):>18} 원")
+        for name, rv, sm_ in scen_summary:
+            print(f"  시나리오 · {name}: 런웨이 {mo(rv)}, 소진 예상 {sm_}")
     else:
         print("  (입력·원자료 미비로 숫자 대조 생략)")
     print("계산과정")
@@ -401,7 +462,7 @@ def main():
     for n_ in rep.notes:
         print(f"  참고: {n_}")
     print("-" * 66)
-    calc_ok = f"월별 {len(cf_rows)}행·요약 항목 전부 일치 (±{TOL}원)" if can_calc else "⏭ 생략 (입력·원자료 오류를 먼저 고친 뒤 재실행)"
+    calc_ok = f"월별 {len(cf_rows)}행·요약·시나리오 3열 전부 일치 (±{TOL}원)" if can_calc else "⏭ 생략 (입력·원자료 오류를 먼저 고친 뒤 재실행)"
     for title, items, okmsg in (("입력·원자료 검사", rep.data, "필수값·목록·날짜 이상 없음"),
                                  ("수식 구조 검사", rep.struct, "하드코딩·수식 불일치·오류 셀 없음"),
                                  ("독립 전개 대조", rep.calc, calc_ok)):

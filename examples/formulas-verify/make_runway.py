@@ -31,6 +31,7 @@ from openpyxl.drawing.text import CharacterProperties, Font as DFont, Paragraph,
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter as L
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.pagebreak import Break
 
 FONT = "맑은 고딕"
 F = Font(name=FONT, size=10)
@@ -314,14 +315,23 @@ def build(path, example=False):
         col = L(CF_FIRST + j)
         put(cf, f"{col}{r}", f"={col}{net_row}-{col}{inv_row}", FB, fmt=NUM)
     r += 1
+    put(cf, f"A{r}", "확정 유입 합계", F)
+    conf_in_row = r
+    for j in range(MONTHS):
+        col = L(CF_FIRST + j)
+        put(cf, f"{col}{r}", sumifs(i_first, i_last, L(EX_FIRST + j), status="확정"), fmt=NUM)
+    r += 1
+    put(cf, f"A{r}", "확정 투자금 입금", F)
+    conf_inv_row = r
+    for j in range(MONTHS):
+        col = L(CF_FIRST + j)
+        put(cf, f"{col}{r}", sumifs(i_first, i_last, L(EX_FIRST + j), cat_lit="투자금 입금", status="확정"), fmt=NUM)
+    r += 1
     put(cf, f"A{r}", "보수적 순현금흐름(확정 유입만, 투자금 제외)", FB)
     cons_row = r
     for j in range(MONTHS):
         col = L(CF_FIRST + j)
-        excol = L(EX_FIRST + j)
-        conf_in = sumifs(i_first, i_last, excol, status="확정")[1:]
-        conf_inv = sumifs(i_first, i_last, excol, cat_lit="투자금 입금", status="확정")[1:]
-        put(cf, f"{col}{r}", f"={conf_in}-{conf_inv}-{col}{out_total}", FB, fmt=NUM)
+        put(cf, f"{col}{r}", f"={col}{conf_in_row}-{col}{conf_inv_row}-{col}{out_total}", FB, fmt=NUM)
     r += 1
     put(cf, f"A{r}", "기말현금", FB)
     end_row = r
@@ -404,6 +414,101 @@ def build(path, example=False):
     sm.column_dimensions["A"].width = 36
     sm.column_dimensions["B"].width = 20
     sm.column_dimensions["C"].width = 50
+
+    # ───── 시나리오 비교 ─────
+    sc = wb.create_sheet("시나리오")
+    put(sc, "A1", "시나리오 비교 (3열)", FH)
+    put(sc, "A2", "노란 칸만 입력. 각 열은 원자료 전체를 기준으로 증감률·예정 유입 포함 여부·추가 비용·기초현금 조정을 적용한 결과.", FNOTE)
+    SCOLS = ["B", "C", "D"]
+    put(sc, "A4", "입력", FB, GRAY)
+    for k, col in enumerate(SCOLS, start=1):
+        put(sc, f"{col}4", f"시나리오 {k}", FB, GRAY, align="center")
+    params = [
+        ("시나리오 이름", None, ["기준(현재 원자료)", "보수: 예정 수입 제외·비용 +10%", "채용 2명 추가(2027-03~)"]),
+        ("유출 증감률", "0%", [0, 0.10, 0]),
+        ("예정 유입 (포함/제외)", None, ["포함", "제외", "포함"]),
+        ("추가 월 비용(원)", NUM, [0, 0, 9_000_000]),
+        ("추가 비용 시작월", "yyyy-mm", [None, None, date(2027, 3, 1)]),
+        ("기초현금 조정(원)", NUM, [0, 0, 0]),
+    ]
+    for i, (label, fmt, vals) in enumerate(params, start=5):
+        put(sc, f"A{i}", label)
+        for col, v in zip(SCOLS, vals):
+            if not example and i in (5, 7):
+                v = v  # 이름·포함여부는 템플릿에도 기본값 유지
+            elif not example:
+                v = 0 if i in (6, 8, 10) else None
+            put(sc, f"{col}{i}", v, fill=YELLOW, fmt=fmt, align="right", border=BOX)
+    dvs = DataValidation(type="list", formula1='"포함,제외"', allow_blank=False)
+    sc.add_data_validation(dvs); dvs.add("B7:D7")
+
+    # 월별 그리드 (23행부터). 월 헤더는 월별현금흐름!4행 참조, 월 번호는 22행
+    G0 = 23
+    put(sc, f"A{G0 - 1}", "월 번호", FNOTE)
+    put(sc, f"A{G0}", "월", FB, GRAY)
+    for j in range(MONTHS):
+        col = L(CF_FIRST + j)
+        put(sc, f"{col}{G0 - 1}", j + 1, FNOTE, fmt="0", align="center")
+        put(sc, f"{col}{G0}", f"=월별현금흐름!{col}$4", FB, GRAY, "yy-mm", "center")
+        sc.column_dimensions[col].width = 15
+    CFS = "월별현금흐름!"
+    blocks = {}
+    r = G0 + 1
+    for k, pc in enumerate(SCOLS, start=1):
+        put(sc, f"A{r}", f'="시나리오 {k}: "&${pc}$5', FB, BLUE)
+        for j in range(1, CF_LAST + 1):
+            sc.cell(row=r, column=j).fill = BLUE
+        rows = {}
+        names = ["유입(투자금 제외)", "투자금 입금", "유출", "순현금흐름(투자금 제외)", "기말현금", "소진 플래그", "안전선 미달 플래그"]
+        for nm in names:
+            r += 1
+            rows[nm] = r
+            put(sc, f"A{r}", nm, FB if nm in ("순현금흐름(투자금 제외)", "기말현금") else F)
+        for j in range(MONTHS):
+            col = L(CF_FIRST + j)
+            f_in = (f'=IF(${pc}$7="포함",{CFS}{col}{in_total}-{CFS}{col}{inv_row},'
+                    f'{CFS}{col}{conf_in_row}-{CFS}{col}{conf_inv_row})')
+            f_inv = f'=IF(${pc}$7="포함",{CFS}{col}{inv_row},{CFS}{col}{conf_inv_row})'
+            f_out = (f'={CFS}{col}{out_total}*(1+${pc}$6)'
+                     f'+IF(${pc}$9="",${pc}$8,IF(YEAR({col}${G0})*12+MONTH({col}${G0})>=YEAR(${pc}$9)*12+MONTH(${pc}$9),${pc}$8,0))')
+            f_net = f'={col}{rows["유입(투자금 제외)"]}-{col}{rows["유출"]}'
+            prev = f"입력!$B$6+${pc}$10" if j == 0 else f"{L(CF_FIRST + j - 1)}{rows['기말현금']}"
+            f_end = f'={prev}+{col}{rows["순현금흐름(투자금 제외)"]}+{col}{rows["투자금 입금"]}'
+            put(sc, f"{col}{rows['유입(투자금 제외)']}", f_in, fmt=NUM)
+            put(sc, f"{col}{rows['투자금 입금']}", f_inv, fmt=NUM)
+            put(sc, f"{col}{rows['유출']}", f_out, fmt=NUM)
+            put(sc, f"{col}{rows['순현금흐름(투자금 제외)']}", f_net, FB, fmt=NUM)
+            put(sc, f"{col}{rows['기말현금']}", f_end, FB, GRAY, NUM)
+            put(sc, f"{col}{rows['소진 플래그']}", f'=IF({col}{rows["기말현금"]}<0,1,0)', FNOTE, fmt="0")
+            put(sc, f"{col}{rows['안전선 미달 플래그']}", f'=IF({col}{rows["기말현금"]}<요약!$B$16,1,0)', FNOTE, fmt="0")
+        blocks[pc] = rows
+        r += 2
+
+    # 결과 표 (12~20행)
+    put(sc, "A12", "결과", FB, GRAY)
+    for k, col in enumerate(SCOLS, start=1):
+        put(sc, f"{col}12", f"={col}5", FB, GRAY, align="center")
+    mon_rng = f"{L(CF_FIRST)}{G0}:{L(CF_LAST)}{G0}"
+    incl = f"{CFS}{L(CF_FIRST)}{incl_row}:{L(CF_LAST)}{incl_row}"
+    res = [
+        ("향후 N개월 평균 순소진", NUM, lambda pc, rw: f"=SUMPRODUCT({incl},{L(CF_FIRST)}{rw['순현금흐름(투자금 제외)']}:{L(CF_LAST)}{rw['순현금흐름(투자금 제외)']})/입력!$B$8"),
+        ("런웨이(개월)", "0.0", lambda pc, rw: f'=IF({pc}13<0,(입력!$B$6+{pc}10)/ABS({pc}13),"영업 흑자")'),
+        ("기준(시나리오 1) 대비 차이", "+0.0;-0.0", lambda pc, rw: f'=IF(AND(ISNUMBER({pc}14),ISNUMBER($B14)),{pc}14-$B14,"-")'),
+        ("현금 소진 예상월", "yyyy-mm", lambda pc, rw: f'=IFERROR(INDEX({mon_rng},MATCH(1,{L(CF_FIRST)}{rw["소진 플래그"]}:{L(CF_LAST)}{rw["소진 플래그"]},0)),"18개월 내 없음")'),
+        ("18개월 후 기말현금", NUM, lambda pc, rw: f"={L(CF_LAST)}{rw['기말현금']}"),
+        ("최저 기말현금", NUM, lambda pc, rw: f"=MIN({L(CF_FIRST)}{rw['기말현금']}:{L(CF_LAST)}{rw['기말현금']})"),
+        ("최저 기말현금 월", "yyyy-mm", lambda pc, rw: f"=INDEX({mon_rng},MATCH({pc}18,{L(CF_FIRST)}{rw['기말현금']}:{L(CF_LAST)}{rw['기말현금']},0))"),
+        ("안전선 미달 예상월", "yyyy-mm", lambda pc, rw: f'=IFERROR(INDEX({mon_rng},MATCH(1,{L(CF_FIRST)}{rw["안전선 미달 플래그"]}:{L(CF_LAST)}{rw["안전선 미달 플래그"]},0)),"18개월 내 없음")'),
+    ]
+    for i, (label, fmt, fn) in enumerate(res, start=13):
+        put(sc, f"A{i}", label, FB if "런웨이" in label else F)
+        for pc in SCOLS:
+            put(sc, f"{pc}{i}", fn(pc, blocks[pc]), FB if "런웨이" in label else F, fmt=fmt, align="right")
+    sc.column_dimensions["A"].width = 30
+    for col in SCOLS:
+        sc.column_dimensions[col].width = 26
+    sc.freeze_panes = "B5"
+    sc_rows = dict(params=(5, 10), results=(13, 20), grid0=G0, blocks={pc: dict(v) for pc, v in blocks.items()})
 
     # ───── 보고 ─────
     rp = wb.create_sheet("보고")
@@ -497,26 +602,64 @@ def build(path, example=False):
     rp.merge_cells("B42:H42")
     rp["B42"].alignment = Alignment(wrap_text=True, vertical="top")
     rp.row_dimensions[42].height = 26
-    rp.print_area = "A1:I43"
+
+    # 2쪽: 시나리오 비교표
+    T0 = 45
+    rp.row_dimensions[T0].height = 30
+    put(rp, f"B{T0}", "시나리오 비교", Font(name=FONT, size=18, bold=True, color=C_INK))
+    put(rp, f"B{T0 + 1}", "각 열은 원자료 전체에 증감률·예정 유입 포함 여부·추가 비용을 적용한 결과. 상세는 시나리오 시트.",
+        Font(name=FONT, size=10, color=C_MUTED))
+    hdr_r = T0 + 3
+    put(rp, f"B{hdr_r}", "항목", Font(name=FONT, size=10, bold=True, color=C_INK2),
+        border=Border(bottom=Side(style="thin", color=C_INK2)))
+    for col, pc in zip("DFH", SCOLS):
+        put(rp, f"{col}{hdr_r}", f"=시나리오!{pc}5", Font(name=FONT, size=10, bold=True, color=C_INK2), align="right",
+            border=Border(bottom=Side(style="thin", color=C_INK2)))
+        rp[f"{col}{hdr_r}"].alignment = Alignment(horizontal="right", wrap_text=True, vertical="bottom")
+    rp.row_dimensions[hdr_r].height = 30
+    lines = [
+        ("유출 증감률", lambda pc: f"=시나리오!{pc}6", "+0%;-0%;0%"),
+        ("예정 유입", lambda pc: f"=시나리오!{pc}7", None),
+        ("추가 월 비용 (백만원)", lambda pc: f"=시나리오!{pc}8", "#,##0,,;-#,##0,,;-"),
+        ("런웨이 (개월)", lambda pc: f"=시나리오!{pc}14", "0.0"),
+        ("기준 대비 (개월)", lambda pc: f"=시나리오!{pc}15", "+0.0;-0.0;0.0"),
+        ("현금 소진 예상월", lambda pc: f"=시나리오!{pc}16", "yyyy-mm"),
+        ("18개월 후 기말현금 (백만원)", lambda pc: f"=시나리오!{pc}17", "#,##0,,;[Red]-#,##0,,"),
+        ("최저 기말현금 (백만원)", lambda pc: f"=시나리오!{pc}18", "#,##0,,;[Red]-#,##0,,"),
+        ("안전선 미달 예상월", lambda pc: f"=시나리오!{pc}20", "yyyy-mm"),
+    ]
+    for i, (label, fn, fmt) in enumerate(lines, start=hdr_r + 1):
+        bold = "런웨이" in label
+        put(rp, f"B{i}", label, Font(name=FONT, size=11 if bold else 10, bold=bold, color=C_INK),
+            border=Border(bottom=Side(style="thin", color=C_GRID)))
+        for col, pc in zip("DFH", SCOLS):
+            put(rp, f"{col}{i}", fn(pc), Font(name=FONT, size=14 if bold else 10, bold=bold, color=C_INK), fmt=fmt, align="right",
+                border=Border(bottom=Side(style="thin", color=C_GRID)))
+        rp.row_dimensions[i].height = 24 if bold else 18
+    put(rp, f"B{hdr_r + len(lines) + 2}", "읽는 법: 런웨이는 투자금 제외 영업 순소진 기준. '예정 유입 제외'는 예정 표시된 매출·지원금·투자금을 모두 뺀 값.",
+        Font(name=FONT, size=9, color=C_MUTED))
+    rp.row_breaks.append(Break(id=43))
+    rp.print_area = f"A1:I{hdr_r + len(lines) + 3}"
     rp.page_setup.orientation = "landscape"
     rp.page_setup.paperSize = rp.PAPERSIZE_A4
     rp.sheet_properties.pageSetUpPr.fitToPage = True
-    rp.page_setup.fitToWidth = 1
-    rp.page_setup.fitToHeight = 1
+    rp.sheet_properties.pageSetUpPr.fitToPage = False
+    rp.page_setup.scale = 62          # 1쪽(보고)·2쪽(시나리오 비교) 고정 배율, 43행 뒤 수동 페이지 나눔
     rp.print_options.horizontalCentered = True
 
     # 나머지 시트 인쇄 설정: 가로, 폭 1페이지
-    for sh in (ws, out_sheet, in_sheet, ex, cf, sm):
+    for sh in (ws, out_sheet, in_sheet, ex, cf, sm, sc):
         sh.page_setup.orientation = "landscape"
         sh.page_setup.paperSize = sh.PAPERSIZE_A4
         sh.sheet_properties.pageSetUpPr.fitToPage = True
         sh.page_setup.fitToWidth = 1
         sh.page_setup.fitToHeight = 0
-    wb.move_sheet("보고", offset=-6)
+    wb.move_sheet("보고", offset=-7)
     wb.save(path)
     layout = dict(row_begin=row_begin, in_total=in_total, out_total=out_total, inv_row=inv_row, net_row=net_row,
                   op_net_row=op_net_row, cons_row=cons_row, end_row=end_row, flag_row=flag_row, incl_row=incl_row,
-                  safe_row=safe_row, safe_flag_row=safe_flag_row,
+                  safe_row=safe_row, safe_flag_row=safe_flag_row, conf_in_row=conf_in_row, conf_inv_row=conf_inv_row,
+                  scenario=sc_rows,
                   ex_out=(o_first, o_last), ex_in=(i_first, i_last))
     print("saved", path, layout)
     return layout
