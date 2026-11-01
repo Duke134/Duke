@@ -38,15 +38,20 @@
   .viewer button:hover{background:rgba(255,255,255,.25)}
   .viewer .close{position:absolute;top:16px;right:20px;font-size:22px;padding:6px 14px}
   footer{margin-top:56px;color:var(--muted);font-size:13px}
+  h2.ver{font-size:18px;font-weight:700;margin-top:44px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  h2.ver a{color:var(--accent);text-decoration:none;font-weight:400;font-size:14px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>덱 갤러리 — 같은 원고, 여섯 가지 디자인</h1>
-    <p>프로필 사이트 내용(<a href="../site/">site/</a>)을 13장 덱으로 옮기고, 디자인 시스템 6종으로 각각 만들었습니다. 표지를 누르면 슬라이드를 넘겨볼 수 있고, pptx·pdf로 내려받을 수 있습니다. 원고는 <a href="CONTENT.md">CONTENT.md</a>, 브리프는 <a href="BRIEFS.md">BRIEFS.md</a>.</p>
+    <p>디자인 시스템 6종(<a href="BRIEFS.md">BRIEFS.md</a>)으로 원고 두 가지를 각각 만들었습니다. v2는 2026-10-27 기준 <a href="../site/">경영지원 프로필</a> 원고(14장), v1은 이전 프로필 사이트(<a href="../site-old/">site-old/</a>) 원고(13장)입니다. 표지를 누르면 슬라이드를 넘겨볼 수 있고, pptx·pdf로 내려받을 수 있습니다.</p>
   </header>
-  <div class="grid" id="grid"></div>
+  <h2 class="ver">v2 — 경영지원 프로필 원고 (14장) · <a href="v2/CONTENT.md">원고</a></h2>
+  <div class="grid" id="grid-v2"></div>
+  <h2 class="ver">v1 — 이전 프로필 사이트 원고 (13장) · <a href="v1/CONTENT.md">원고</a></h2>
+  <div class="grid" id="grid-v1"></div>
   <footer>모든 덱은 맑은 고딕 기준으로 제작. 미리보기 이미지는 LibreOffice 렌더링이라 실제 PowerPoint와 글자 폭이 조금 다를 수 있습니다.</footer>
 </div>
 
@@ -69,38 +74,45 @@ const DECKS = [
   {slug:"05-bold-typo",    name:"Bold Typo",     mood:"코랄·골드·네이비 색면 분할과 초대형 키워드", palette:["#F96167","#F9E795","#2F3C7E","#FFFFFF","#1B1F3B"]},
   {slug:"06-korean-formal",name:"Korean Formal", mood:"국내 기관 보고서형, 감청·하늘색 구획과 정갈한 표", palette:["#1E2761","#CADCFC","#EEF3FB","#1A1A1A","#C8102E"]},
 ];
-const SLIDES = 13;
-const grid = document.getElementById('grid');
-DECKS.forEach((d,i)=>{
-  const el = document.createElement('article'); el.className='card';
-  el.innerHTML = `
-    <div class="cover" data-i="${i}"><img src="${d.slug}/cover.jpg" alt="${d.name} 표지" loading="lazy"><span class="badge">${String(i+1).padStart(2,'0')} · ${SLIDES}장</span></div>
-    <div class="body">
-      <h2>${d.name}</h2>
-      <div class="mood">${d.mood}</div>
-      <div class="palette">${d.palette.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
-      <div class="actions">
-        <button class="btn primary" data-i="${i}">슬라이드 보기</button>
-        <a class="btn" href="${d.slug}/deck.pptx" download>PPTX</a>
-        <a class="btn" href="${d.slug}/deck.pdf" target="_blank" rel="noopener">PDF</a>
-        <a class="btn" href="${d.slug}/build.js" target="_blank" rel="noopener">소스</a>
-      </div>
-    </div>`;
-  grid.appendChild(el);
+const VERSIONS = [
+  {key:"v2", slides:14},
+  {key:"v1", slides:13},
+];
+const CARDS = [];
+VERSIONS.forEach(v=>{
+  const grid = document.getElementById('grid-'+v.key);
+  DECKS.forEach((d,i)=>{
+    const idx = CARDS.length; CARDS.push({...d, base:`${v.key}/${d.slug}`, slides:v.slides});
+    const el = document.createElement('article'); el.className='card';
+    el.innerHTML = `
+      <div class="cover" data-i="${idx}"><img src="${v.key}/${d.slug}/cover.jpg" alt="${d.name} ${v.key} 표지" loading="lazy"><span class="badge">${String(i+1).padStart(2,'0')} · ${v.slides}장</span></div>
+      <div class="body">
+        <h2>${d.name}</h2>
+        <div class="mood">${d.mood}</div>
+        <div class="palette">${d.palette.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
+        <div class="actions">
+          <button class="btn primary" data-i="${idx}">슬라이드 보기</button>
+          <a class="btn" href="${v.key}/${d.slug}/deck.pptx" download>PPTX</a>
+          <a class="btn" href="${v.key}/${d.slug}/deck.pdf" target="_blank" rel="noopener">PDF</a>
+          <a class="btn" href="${v.key}/${d.slug}/build.js" target="_blank" rel="noopener">소스</a>
+        </div>
+      </div>`;
+    grid.appendChild(el);
+  });
 });
 let cur = {deck:0, n:1};
 const viewer=document.getElementById('viewer'), vImg=document.getElementById('vImg'), vLabel=document.getElementById('vLabel');
 function show(){
-  const d = DECKS[cur.deck];
-  vImg.src = `${d.slug}/slides/slide-${String(cur.n).padStart(2,'0')}.jpg`;
-  vLabel.textContent = `${d.name} · ${cur.n} / ${SLIDES}`;
+  const d = CARDS[cur.deck];
+  vImg.src = `${d.base}/slides/slide-${String(cur.n).padStart(2,'0')}.jpg`;
+  vLabel.textContent = `${d.name} (${d.base.split('/')[0]}) · ${cur.n} / ${d.slides}`;
 }
 function open(i){ cur={deck:i,n:1}; viewer.classList.add('open'); document.body.style.overflow='hidden'; show(); }
 function close(){ viewer.classList.remove('open'); document.body.style.overflow=''; }
 document.querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>open(+b.dataset.i)));
 document.getElementById('vClose').addEventListener('click',close);
-document.getElementById('vPrev').addEventListener('click',()=>{cur.n=cur.n>1?cur.n-1:SLIDES;show();});
-document.getElementById('vNext').addEventListener('click',()=>{cur.n=cur.n<SLIDES?cur.n+1:1;show();});
+document.getElementById('vPrev').addEventListener('click',()=>{cur.n=cur.n>1?cur.n-1:CARDS[cur.deck].slides;show();});
+document.getElementById('vNext').addEventListener('click',()=>{cur.n=cur.n<CARDS[cur.deck].slides?cur.n+1:1;show();});
 viewer.addEventListener('click',e=>{ if(e.target===viewer) close(); });
 document.addEventListener('keydown',e=>{
   if(!viewer.classList.contains('open')) return;
