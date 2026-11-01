@@ -236,10 +236,12 @@ def build(path, example=False):
     cf = wb.create_sheet("월별현금흐름")
     put(cf, "A1", "월별 현금흐름 (18개월)", FH)
     put(cf, "A2", "전부 수식. 숫자를 고치려면 원자료 시트에서. B열은 해당 구분의 원자료 건수.", FNOTE)
+    put(cf, "A3", "월 번호", FNOTE)
     put(cf, "A4", "항목", FB, GRAY)
     put(cf, "B4", "원자료 건수", FB, GRAY, align="center")
     for j in range(MONTHS):
         col = L(CF_FIRST + j)
+        put(cf, f"{col}3", j + 1, FNOTE, fmt="0", align="center")
         f = "=입력!$B$5" if j == 0 else f"=EDATE({L(CF_FIRST + j - 1)}4,1)"
         put(cf, f"{col}4", f, FB, GRAY, "yyyy-mm", "center")
         cf.column_dimensions[col].width = 13
@@ -341,7 +343,7 @@ def build(path, example=False):
     incl_row = r
     for j in range(MONTHS):
         col = L(CF_FIRST + j)
-        put(cf, f"{col}{r}", f"=IF({j + 1}<=입력!$B$8,1,0)", FNOTE, fmt="0")
+        put(cf, f"{col}{r}", f"=IF({col}$3<=입력!$B$8,1,0)", FNOTE, fmt="0")
     r += 1
     put(cf, f"A{r}", "안전 잔액선(N개월치 평균 유출)", FB)
     safe_row = r
