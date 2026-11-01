@@ -19,13 +19,14 @@
 
 ---
 
-## 1. 전제와 가정 (Duke 확인 필요)
+## 1. 전제 (2026-11-01 Duke 결정 반영)
 
-1. **개인 블로그 기준.** `blog-write` 스킬은 Duke 개인 블로그용이다. 회사(GXC) 공식 블로그라면 기밀 규칙·승인 체계가 달라져 별도 스킬이 필요하다. `[확인 필요]`
-2. **"클라우드 크레딧"의 종류.** Google Cloud(스타트업 크레딧) / AWS Activate / 네이버클라우드 / Anthropic API 크레딧 중 어느 것인지에 따라 §5 실행기 선택이 바뀐다. 이 문서는 Blogger와 궁합이 좋은 **Google Cloud 기준**으로 쓰고, 다른 크레딧이면 대체 표를 넣었다. `[확인 필요]`
-3. **회사 크레딧을 개인 블로그에 쓰는 경우** 회사 자산 사용·겸업 규정 문제가 생길 수 있다. 회사 크레딧이면 대표님 확인이 먼저다. `[확인 필요]`
-4. **발행 게이트.** `blog-write` 공통 원칙 5("Claude는 블로그에 게시하지 않는다")와 Duke 프롬프트의 외부 전송 규칙에 따라, 기본안은 **초안까지 자동 + 발행은 Duke 승인 1클릭**이다. "완전 무인 발행"은 Duke가 명시적으로 켜는 옵션으로 둔다.
-5. **수익화(광고·제휴)** 를 켜면 재직 중 겸업 규정 확인과 공정위 추천·보증 표기 자리가 필요하다(조문 미확인).
+1. **개인 블로그 기준.** `blog-write` 스킬 그대로 쓴다. **회사(GXC) 공식 블로그는 추후 연동 예정** → 같은 파이프라인을 재사용하되 별도 스킬(대외 표현 규칙·대표님 승인·기밀 필터 강화)로 분리한다. 개인/회사 채널이 섞이지 않게 MCP 서버 이름과 Blogger 블로그 ID를 채널별로 나눈다. (결정됨)
+2. **클라우드 크레딧.** 추천안(§5-A Claude Code 예약 작업)은 Phase 1~3에서 크레딧을 쓰지 않는다. 크레딧은 Phase 4 무인화(Cloud Run 등)에서만 필요하므로 종류 확인은 그때 한다. 개인 크레딧이 아니라 회사 크레딧이면 그 시점에 대표님 확인. `[확인 필요 — Phase 4 전]`
+3. **발행 게이트: Duke 승인 1클릭.** Blogger는 초안 생성 → Duke 승인 → publish, 네이버는 업리카 비공개 업로드 → Duke 승인 → 공개 전환. 완전 무인 발행은 쓰지 않는다. (결정됨)
+4. **네이버: 업리카 + 공개 전환만 Duke.** Playwright 직접 자동화는 예비안으로만 둔다. (결정됨)
+5. **실행기: Claude Code 예약 작업으로 시작.** (결정됨)
+6. **수익화(광고·제휴)** 를 켜면 재직 중 겸업 규정 확인과 공정위 추천·보증 표기 자리가 필요하다(조문 미확인).
 
 ---
 
@@ -79,9 +80,9 @@
 | 순위 | 역할 | 후보 | 설치 | 2026-11-01 확인 | 선택 이유·주의 |
 |---|---|---|---|---|---|
 | 0 | **네이버 발행** | 업리카(uplika) — claude.ai 사용자 정의 커넥터 `https://api.uplika.com/mcp` + 크롬 확장 | uplika.com 구글 가입 → 채널 연결(네이버) → 크롬 확장 설치 → 에이전트 연결(Claude) → 커넥터 추가·허용 | Notion 가이드 기준. 이 세션에서 접속 불가 `[미확인]` | 설치가 가장 쉽고 폰 Claude 앱에서도 동작. 연결 확인은 "내 블로그 카테고리 목록 보여줘". **GitHub 저장소 없음(호스팅 서비스)**, 약관·개인정보 처리방침 확인 후 사용 |
-| 1 | **Blogger 발행** | `dalcontak/blogger-mcp-server` (npm `@dalcontak/blogger-mcp-server`) | `npx -y @dalcontak/blogger-mcp-server` | npm 1.0.3, 2026-03-29 | OAuth로 글 생성·수정·삭제·내 블로그 목록. 대안 `aleck31/mcp-blogger`(npm `mcp-blogger` 1.0.2, 2026-02-13; API키=읽기, OAuth=쓰기). **둘 다 소규모 개인 프로젝트라 초안(isDraft)·publish 도구가 있는지 README에서 확인 필요.** 없으면 §4-3 자체 제작 |
-| 2 | **키워드 검색량 실측** | `alphago2580/naver_searchad_mcp` (Python, `get_keyword_stats`) 또는 `2duckchun/naver-ads-mcp` (`npx -y github:2duckchun/naver-ads-mcp`, Node 20+) | 네이버 검색광고 API 키 필요(광고시스템 > 도구 > API 사용 관리, 무료) | 디렉터리 등재 확인 | blog-write 원칙 2(검색량은 추정)를 **실측**으로 바꿔 준다. 광고 계정 개설이 선행 |
-| 3 | **검색 트렌드·블로그 검색** | `isnow890/naver-search-mcp` (npm `@isnow890/naver-search-mcp`) | `npx -y @isnow890/naver-search-mcp` + `NAVER_CLIENT_ID/SECRET` | npm 1.0.54, 2026-10-07 | 네이버 개발자센터 앱 등록(검색·데이터랩 API). `datalab_search`로 키워드 트렌드, 블로그 검색으로 경쟁 글 파악 |
+| 1 | **Blogger 발행** | `aleck31/mcp-blogger` (npm `mcp-blogger`) | `npx -y mcp-blogger` + `GOOGLE_CLIENT_ID/SECRET`, `DEFAULT_BLOG_ID` | npm 1.0.2(2026-02-13), MIT. README로 도구 확인 완료 | **초안 우선 설계**: `create_post`는 기본 초안, `change_post_status action=publish`로 발행, `revert`로 비공개 복귀, `list_drafts`·`get_post`로 미리보기 → 승인 게이트와 정확히 맞는다. OAuth 토큰은 `~/.config/mcp-blogger/`에 자동 저장·갱신(첫 1회 브라우저 동의). 대안 `@dalcontak/blogger-mcp-server`(1.0.3)는 초안/발행 분리 도구가 없어 2순위 |
+| 2 | **키워드 검색량 실측** | `alphago2580/naver_searchad_mcp` (Python, `get_keyword_stats`) 또는 `2duckchun/naver-ads-mcp` (`npx -y github:2duckchun/naver-ads-mcp`, Node 20+) | 네이버 검색광고 API 키 필요(광고시스템 > 도구 > API 사용 관리, 무료). **npm·PyPI 미등록, GitHub에서 직접 받아야 함** | 디렉터리 등재만 확인 | blog-write 원칙 2(검색량은 추정)를 **실측**으로 바꿔 준다. 광고 계정 개설이 선행. Phase 1에서는 생략 가능(Phase 3 분석 루프에서 붙인다) |
+| 3 | **검색 트렌드·블로그 검색** | `isnow890/naver-search-mcp` (npm `@isnow890/naver-search-mcp`) | `npx -y @isnow890/naver-search-mcp` + **`NCP_APIGW_API_KEY_ID/KEY`**(NAVER API HUB) | npm 1.0.54(2026-10-07), MIT. README로 도구 확인 완료 | 도구 18개: `search_blog`(경쟁 글), `search_webkr`·`search_news`, `datalab_search`(검색어 트렌드) 등. **주의: 네이버 개발자센터 키는 2026-07-31부터 신규 발급 차단(기존 키는 2027-06-30까지). 신규는 네이버클라우드 콘솔 > NAVER API HUB에서 발급** |
 | 4 | **구글 유입 통계** | `ahonn/mcp-server-gsc` (npm `mcp-server-gsc`) 또는 `@sarahpark/google-search-console-mcp` | 서비스 계정 JSON + Search Console에 Blogger 속성 등록 | npm 0.3.0(2026-02-13) / 1.1.0(2026-09-19) | 모드 3 주간 분석의 데이터 소스. Blogger 자체 통계는 Blogger API `pageViews`로 보강 |
 | 5 | **브라우저 자동화(네이버 예비안, Phase 4)** | `microsoft/playwright-mcp` (npm `@playwright/mcp`) | `npx -y @playwright/mcp@latest` | npm 0.0.84, 2026-10-31 | 공식·활발. 업리카가 종료·유료화되거나 막힐 때 네이버 글쓰기 화면 직접 조작용. 이 세션에는 `browser-use` 플러그인도 있어 대체 가능. **PoC 전 §6 리스크 결정 필수** |
 | 6 | (참고) 네이버 발행 완성품 | `sinmb79/blog-writer` | 저장소 README 확인 | 릴리스 v3.3.0 확인 | 네이버·워드프레스 발행 + 텔레그램 알림이 이미 묶인 프로젝트. 코드 품질·유지보수는 미확인이므로 **구조 참고용** |
@@ -92,17 +93,19 @@ GitHub 직접 접속은 이 세션의 네트워크 정책에 막혀(403) 저장�
 
 | 이름(가칭) | 왜 만드나 | 규모 |
 |---|---|---|
-| `blogger-mcp` (자체) | 후보 1이 초안·발행 분리나 `pageViews`를 지원하지 않으면 직접 만든다. Blogger API v3 호출 5개(list blogs, insert draft, publish, update, pageViews) | Node/TypeScript 1파일 수준, 1~2일 |
+| `blogger-mcp` (자체) | 후보 1(`mcp-blogger`)이 초안·발행 분리를 이미 지원하므로 **당장은 불필요**. `pageViews`(Blogger 자체 통계)가 필요해지는 Phase 3에서 Search Console로 충분하지 않을 때만 1파일 추가 | Node/TypeScript 1파일 수준, 1일 |
 | `blog-pipeline` 스크립트 | 10단계를 순서대로 부르는 오케스트레이터. Claude Code 예약 작업(§5-A)에서는 프롬프트 1개로 충분하고, Cloud Run(§5-B)에서는 Claude API Tool Runner로 작성 | §5 선택에 따라 |
 | `blog-write` 스킬 v1.1 | 모드 2-6 "저장"에 **Blogger 초안 업로드 + 업리카 비공개 업로드**, 모드 4 "승인·공개 전환" 추가. 공통 원칙 5를 "Duke 승인 전 공개 금지"로 다듬는다. Notion 가이드의 글쓰기 팁도 반영: ① Duke가 쓴 글 2~3편 링크로 말투 학습 ② AI 티 나는 표현 금지 목록("~해보세요", "다양한", "효과적으로", "~하는 것이 중요합니다") ③ 글마다 길이·구조 바꾸기 ④ 쓰기 전 질문은 3개 이내로 묶기 | skill-audit 절차로 .skill 파일까지 (설치 대기) |
 
 ### 4-4. 계정·키 준비 체크리스트 (Duke가 직접)
 
-- [ ] Google Cloud 프로젝트 생성 → Blogger API 사용 설정 → OAuth 클라이언트(데스크톱) 발급 → 1회 동의 후 refresh token 보관
-- [ ] Blogger 블로그 개설(blogspot) — API로는 블로그 생성 불가, 수동
-- [ ] Google Search Console에 Blogger 주소 등록 + 서비스 계정 권한 부여
-- [ ] 네이버 개발자센터 앱 등록(검색·데이터랩) → Client ID/Secret
-- [ ] 네이버 검색광고 계정 → API 라이선스 발급(무료)
+- [ ] Google Cloud 프로젝트 생성 → Blogger API 사용 설정 → OAuth 클라이언트(웹 애플리케이션, 리디렉션 `http://localhost:3000/oauth/callback`) 발급 → `mcp-blogger` 첫 쓰기 호출 때 브라우저 동의 1회
+- [ ] Blogger 블로그 개설(blogspot) — API로는 블로그 생성 불가, 수동. 블로그 ID를 `DEFAULT_BLOG_ID`로
+- [ ] Google Search Console에 Blogger 주소 등록 + 서비스 계정 권한 부여 (Phase 3)
+- [ ] **NAVER API HUB**(네이버클라우드 콘솔 > Application Services > NAVER API HUB > Application 등록, 검색·데이터랩 선택) → `NCP_APIGW_API_KEY_ID` / `NCP_APIGW_API_KEY`
+- [ ] 네이버 검색광고 계정 → API 라이선스 발급(무료) (Phase 3)
+
+세부 절차는 `docs/블로그_MCP_세팅가이드.md`.
 - [ ] 업리카: 구글 계정 가입 → 네이버 블로그 채널 연결 → 크롬 확장 설치(컴퓨터 크롬, 폰 불가) → claude.ai 사용자 정의 커넥터 추가 → 약관·개인정보 처리방침 1회 확인
 - [ ] Slack: Duke 본인 DM 채널 ID 확인(승인 알림 수신용)
 - [ ] 키 보관: `.env`는 저장소에 올리지 않는다. Cloud Run은 Secret Manager, 로컬은 Claude Code `settings.local.json`
@@ -178,16 +181,20 @@ GitHub 직접 접속은 이 세션의 네트워크 정책에 막혀(403) 저장�
 
 ---
 
-## 9. Duke 결정 필요 사항
+## 9. 결정 기록 (2026-11-01)
 
-1. 개인 블로그인가, GXC 공식 블로그인가 → **추천: 개인 블로그 전제**(blog-write 그대로)
-2. 크레딧 종류와 소유(개인/회사) → 회사 크레딧이면 대표님 확인 선행
-3. 발행 게이트: ① Duke 승인 1클릭(추천) / ② 완전 무인 발행 → **추천 ①**
-4. 네이버: ① 업리카 MCP로 비공개 업로드까지, 공개 전환은 Duke(추천) / ② Playwright 직접 자동화 PoC / ③ 붙여넣기 직전까지만 → **추천 ①, Playwright는 예비안**
-5. 실행기: ① Claude Code 예약 작업으로 시작(추천) / ② 처음부터 Cloud Run → **추천 ①**
-6. 플랫폼 2순위로 워드프레스 추가 여부(네이버 대체 완전자동 채널) → 보류 추천
+| # | 항목 | 결정 |
+|---|---|---|
+| 1 | 대상 블로그 | **개인 블로그.** 회사 블로그는 추후 별도 스킬로 연동 |
+| 2 | 크레딧 | Phase 4 전까지 불필요. 종류·소유는 그때 확인 |
+| 3 | 발행 게이트 | **Duke 승인 1클릭** |
+| 4 | 네이버 | **업리카 + 공개 전환만 Duke.** Playwright는 예비안 |
+| 5 | 실행기 | **Claude Code 예약 작업**으로 시작 |
+| 6 | 워드프레스 추가 | 보류 |
 
-별말씀 없으시면 1·3·4·5는 추천안으로, 2는 확인 후 진행합니다.
+### 다음 할 일
+- Duke: `docs/블로그_MCP_세팅가이드.md` 순서대로 업리카 연결 → Google Cloud OAuth → NAVER API HUB 키 발급 (Phase 0, 11/3(화)~11/7(토))
+- Claude: 키가 들어오면 Phase 1 첫 글 1편을 "볼트 초안 = 네이버 비공개 = Blogger 초안"으로 올리고, 그 결과를 바탕으로 `blog-write v1.1`(.skill 파일) 작성
 
 ---
 
