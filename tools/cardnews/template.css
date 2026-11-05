@@ -1,0 +1,28 @@
+/* 카드뉴스 템플릿 — 1080x1350 (인스타그램 캐러셀 4:5)
+   글꼴: 맑은 고딕 우선. Linux에는 fonts/ 폴더에 Noto Sans KR woff2를 두면 대체 사용(README 참고) */
+@font-face{font-family:"NotoKR";src:url("fonts/noto-sans-kr-korean-400-normal.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"NotoKR";src:url("fonts/noto-sans-kr-korean-700-normal.woff2") format("woff2");font-weight:700}
+@font-face{font-family:"NotoKR";src:url("fonts/noto-sans-kr-korean-900-normal.woff2") format("woff2");font-weight:900}
+:root{--navy:#17315c;--ink:#1c1c1c;--muted:#6b7280;--paper:#f6f1e7;--accent:#e4572e;--line:#d9d2c3;--gold:#ffb547}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#888;font-family:"Malgun Gothic","맑은 고딕","NotoKR",sans-serif;color:var(--ink)}
+.card{width:1080px;height:1350px;position:relative;overflow:hidden;background:var(--paper);padding:96px 88px 120px;display:flex;flex-direction:column}
+.cover{background:var(--navy);color:#fff}
+.tag{display:inline-block;font-size:30px;font-weight:700;letter-spacing:.02em;padding:12px 24px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;margin-bottom:56px;align-self:flex-start}
+.cover h1{font-size:104px;line-height:1.18;font-weight:900;word-break:keep-all;margin-bottom:40px}
+.cover h1 em{font-style:normal;color:var(--gold)}
+.cover p{font-size:38px;line-height:1.5;color:#d7deea;word-break:keep-all}
+.num{font-size:150px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:28px}
+.num small{font-size:44px;color:var(--muted);font-weight:700;margin-left:16px}
+h2{font-size:84px;line-height:1.22;font-weight:900;color:var(--navy);word-break:keep-all;margin-bottom:48px}
+.body{font-size:42px;line-height:1.6;word-break:keep-all;color:var(--ink)}
+.body li{list-style:none;padding-left:52px;position:relative;margin-bottom:18px}
+.body li::before{content:"";position:absolute;left:0;top:26px;width:22px;height:22px;border-radius:50%;background:var(--accent)}
+.key{margin-top:auto;border-top:4px solid var(--line);padding-top:36px;font-size:40px;font-weight:700;color:var(--navy);word-break:keep-all}
+.foot{position:absolute;left:88px;right:88px;bottom:48px;display:flex;justify-content:space-between;font-size:28px;color:var(--muted);font-weight:700}
+.cover .foot{color:#aeb9cc}
+.last h2{font-size:76px}
+.quote{background:#fff;border-left:14px solid var(--accent);padding:40px 44px;font-size:40px;line-height:1.55;word-break:keep-all;margin-bottom:48px}
+.quote .who{display:block;margin-top:20px;font-size:30px;color:var(--muted);font-weight:700}
+.cta{margin-top:auto;background:var(--navy);color:#fff;border-radius:28px;padding:44px 48px;font-size:40px;line-height:1.5;font-weight:700;word-break:keep-all}
+.cta span{display:block;font-size:30px;color:#c9d3e6;font-weight:400;margin-top:12px}
